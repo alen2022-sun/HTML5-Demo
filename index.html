@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5-Demo 作品集</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f6f8fa;
+            color: #24292f;
+        }
+        h1 { text-align: center; margin-bottom: 40px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        a {
+            color: #0969da;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        a:hover { text-decoration: underline; }
+        .loading { text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🎮 HTML5-Demo 浏览入口</h1>
+    <div class="loading" id="status">正在自动扫描 source 目录...</div>
+    <div class="grid" id="list"></div>
+
+    <script>
+        // 配置：仓库信息与目标目录
+        const user = 'alen2022-sun';
+        const repo = 'HTML5-Demo';
+        const dir = 'source';
+        const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${dir}`;
+
+        fetch(apiUrl)
+            .then(res => {
+                if (!res.ok) throw new Error('API请求失败');
+                return res.json();
+            })
+            .then(files => {
+                document.getElementById('status').style.display = 'none';
+                const list = document.getElementById('list');
+                
+                // 过滤出 .html 文件，并按名称排序
+                files.filter(f => f.name.endsWith('.html'))
+                     .sort((a, b) => a.name.localeCompare(b.name))
+                     .forEach(f => {
+                         const displayName = f.name.replace('.html', '').replace(/-/g, ' ');
+                         list.innerHTML += `
+                            <div class="card">
+                                <a href="./${dir}/${f.name}" target="_blank">${displayName}</a>
+                            </div>
+                         `;
+                     });
+            })
+            .catch(err => {
+                document.getElementById('status').innerHTML = '⚠️ 扫描失败，请检查 API 限制或路径';
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
