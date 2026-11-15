@@ -1,11 +1,65 @@
 [
-  "source/Chinese-geo.html",
-  "source/Defense-tower.html",
-  "source/LumenOS.html",
-  "source/The-Matrix.html",
-  "source/china_map.html",
-  "source/engine.html",
-  "source/shot-gun-1.html",
-  "source/shot-gun-2.html",
-  "source/shot-gun-3.html"
+  {
+    "file": "source/china_map.html",
+    "title": "中国地图交互",
+    "desc": "SVG 中国地图，支持省份高亮、缩放平移、多套主题切换、水系山脉图层叠加",
+    "icon": "🗺️",
+    "tags": ["地图", "SVG", "交互"]
+  },
+  {
+    "file": "source/Chinese-geo.html",
+    "title": "中国地形 · 三维交互图谱",
+    "desc": "WebGL 三维地形可视化，展示三级阶梯、水系、山脉、铁路网，支持拖拽旋转与缩放",
+    "icon": "⛰️",
+    "tags": ["地形", "Three.js", "3D"]
+  },
+  {
+    "file": "source/Defense-tower.html",
+    "title": "暗区防线 · 2.5D 战术塔防",
+    "desc": "2.5D 塔防游戏，含多种防御塔、敌人波次、技能系统、CRT 扫描线特效",
+    "icon": "🏰",
+    "tags": ["塔防", "游戏", "Canvas"]
+  },
+  {
+    "file": "source/engine.html",
+    "title": "直列四缸发动机 · 交互式 3D 解剖台",
+    "desc": "Three.js 驱动的发动机 3D 拆解模型，可调速观察曲柄连杆机构运转与正时皮带传动",
+    "icon": "⚙️",
+    "tags": ["机械", "Three.js", "3D"]
+  },
+  {
+    "file": "source/LumenOS.html",
+    "title": "Lumen OS · 概念系统演示",
+    "desc": "毛玻璃拟物化桌面操作系统概念界面，含窗口管理、AI 助手、动态壁纸与主题切换",
+    "icon": "💻",
+    "tags": ["UI", "概念", "毛玻璃"]
+  },
+  {
+    "file": "source/shot-gun-1.html",
+    "title": "SHOTGUN APOCALYPSE — 末日霰弹枪",
+    "desc": "第一人称射击生存游戏，WebGL 渲染，含敌人 AI、武器系统、弹片物理与 Boss 战",
+    "icon": "🔫",
+    "tags": ["FPS", "射击", "WebGL"]
+  },
+  {
+    "file": "source/shot-gun-2.html",
+    "title": "SHOTGUN APOCALYPSE — 末日霰弹枪 v2",
+    "desc": "升级版 FPS 生存游戏，新增电影级后处理、更丰富的敌人类型与武器升级系统",
+    "icon": "💥",
+    "tags": ["FPS", "射击", "WebGL"]
+  },
+  {
+    "file": "source/shot-gun-3.html",
+    "title": "SHOTGUN APOCALYPSE — 霰弹枪末日 v3",
+    "desc": "最终版末日射击游戏，完整 UI 系统、设置面板、波次生存模式与成就系统",
+    "icon": "🧟",
+    "tags": ["FPS", "生存", "WebGL"]
+  },
+  {
+    "file": "source/The-Matrix.html",
+    "title": "HACK TERMINAL — 系统入侵",
+    "desc": "黑客终端模拟器，Matrix 代码雨背景，逐行打印入侵日志与进度条动画",
+    "icon": "🕶️",
+    "tags": ["终端", "动画", "Matrix"]
+  }
 ]
