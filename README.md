@@ -10,21 +10,6 @@
 **https://alen2022-sun.github.io/HTML5-Demo/**
 
 ## 📁 项目结构
-HTML5-Demo/
-├── index.html # 导航首页（自动读取 files.json）
-├── files.json # 作品清单（新增文件只改这里）
-├── favicon.svg # 网站图标
-├── README.md
-└── source/ # 所有独立 HTML Demo
-├── china_map.html
-├── Chinese-geo.html
-├── Defense-tower.html
-├── engine.html
-├── LumenOS.html
-├── shot-gun-1.html
-├── shot-gun-2.html
-├── shot-gun-3.html
-└── The-Matrix.html
 
 ## 🎯 作品列表
 
@@ -44,16 +29,6 @@ HTML5-Demo/
 
 1. 将新的 HTML 文件放入 `source/` 目录
 2. 编辑 `files.json`，添加一条记录：
-
-json
-{
-"file": "source/your-file.html",
-"title": "作品标题",
-"desc": "简短描述",
-"icon": "🎯",
-"tags": ["标签1", "标签2"]
-}
-
 3. Push 到 GitHub，自动生效
 
 ## 🛠️ 技术栈
