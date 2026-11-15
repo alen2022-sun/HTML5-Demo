@@ -50,7 +50,7 @@ HTML5-Demo/
 | 3 | 🏰 [暗区防线 · 2.5D 战术塔防](https://alen2022-sun.github.io/HTML5-Demo/source/Defense-tower.html) | 2.5D 塔防游戏，含多种防御塔、敌人波次、技能系统、CRT 扫描线特效 | `塔防` · `游戏` · `Canvas` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/Defense-tower.html) |
 | 4 | ⚙️ [直列四缸发动机 · 交互式 3D 解剖台](https://alen2022-sun.github.io/HTML5-Demo/source/engine.html) | Three.js 驱动的发动机 3D 拆解模型，可调速观察曲柄连杆机构运转与正时皮带传动 | `机械` · `Three.js` · `3D` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/engine.html) |
 | 5 | 💻 [Lumen OS · 概念系统演示](https://alen2022-sun.github.io/HTML5-Demo/source/LumenOS.html) | 毛玻璃拟物化桌面操作系统概念界面，含窗口管理、AI 助手、动态壁纸与主题切换 | `UI` · `概念` · `毛玻璃` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/LumenOS.html) |
-| 6 | 🔫 [SHOTGUN APOCALYPSE — 末日霰弹枪 v1](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) | 第一人称射击生存游戏，WebGL 渲染，含敌人 AI、武器系统、弹片物理与 Boss 战 | `FPS` · `射击` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) |
+| 6 | 🔫 [SHOTGUN APOCALYPSE — 末日霰弹枪](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) | 第一人称射击生存游戏，WebGL 渲染，含敌人 AI、武器系统、弹片物理与 Boss 战 | `FPS` · `射击` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) |
 | 7 | 💥 [SHOTGUN APOCALYPSE — 末日霰弹枪 v2](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) | 升级版 FPS 生存游戏，新增电影级后处理、更丰富的敌人类型与武器升级系统 | `FPS` · `射击` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) |
 | 8 | 🧟 [SHOTGUN APOCALYPSE — 霰弹枪末日 v3](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) | 最终版末日射击游戏，完整 UI 系统、设置面板、波次生存模式与成就系统 | `FPS` · `生存` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) |
 | 9 | 🕶️ [HACK TERMINAL — 系统入侵](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) | 黑客终端模拟器，Matrix 代码雨背景，逐行打印入侵日志与进度条动画 | `终端` · `动画` · `Matrix` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) |
@@ -63,7 +63,7 @@ HTML5-Demo/
 - [暗区防线 · 2.5D 战术塔防](https://alen2022-sun.github.io/HTML5-Demo/source/Defense-tower.html) — `source/Defense-tower.html`
 - [直列四缸发动机 · 交互式 3D 解剖台](https://alen2022-sun.github.io/HTML5-Demo/source/engine.html) — `source/engine.html`
 - [Lumen OS · 概念系统演示](https://alen2022-sun.github.io/HTML5-Demo/source/LumenOS.html) — `source/LumenOS.html`
-- [SHOTGUN APOCALYPSE — 末日霰弹枪 v1](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) — `source/shot-gun-1.html`
+- [SHOTGUN APOCALYPSE — 末日霰弹枪](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-1.html) — `source/shot-gun-1.html`
 - [SHOTGUN APOCALYPSE — 末日霰弹枪 v2](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) — `source/shot-gun-2.html`
 - [SHOTGUN APOCALYPSE — 霰弹枪末日 v3](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) — `source/shot-gun-3.html`
 - [HACK TERMINAL — 系统入侵](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) — `source/The-Matrix.html`
