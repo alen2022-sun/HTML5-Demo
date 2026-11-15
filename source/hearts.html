@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>红心大战 · 离线珍藏版</title>
+<style>
+/* ============ 基础 ============ */
+:root{
+  --card-w: clamp(66px, 7.4vw, 100px);
+  --card-h: calc(var(--card-w) * 1.42);
+  --gold:#e9c46a;
+  --gold-2:#f7e3b0;
+  --ink:#eaf2ef;
+  --muted:#a8bfb8;
+  --red:#c62b40;
+  --line:rgba(233,196,106,.22);
+  --shadow:0 18px 46px rgba(0,0,0,.45);
+  --ease:cubic-bezier(.2,.85,.3,1);
+  --face-bg:linear-gradient(158deg,#fffefa 0%,#fbf6ea 48%,#eee6d6 100%);
+  --c-C:#16212c; --c-D:#c62b40; --c-S:#16212c; --c-H:#c62b40;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  font-size:15px;color:var(--ink);background:#050d11;overflow:hidden;
+  -webkit-font-smoothing:antialiased;user-select:none;
+}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none !important}
+
+/* ============ 牌面 / 花色 / 牌背（牌面白底，花色固定经典黑红） ============ */
+body{--c-C:#16212c;--c-D:#c62b40;--c-S:#16212c;--c-H:#c62b40}
+/* 四种牌面全部为白底，仅质感不同 */
+body[data-face="classic"]{--face-bg:linear-gradient(158deg,#ffffff 0%,#fdfcf8 55%,#f4f1e9 100%);--face-edge:rgba(20,30,40,.12)}
+body[data-face="bright"]{--face-bg:linear-gradient(158deg,#ffffff 0%,#ffffff 62%,#f7f7f5 100%);--face-edge:rgba(20,30,40,.16)}
+body[data-face="linen"]{--face-bg:repeating-linear-gradient(48deg,rgba(90,90,90,.028) 0 2px,transparent 2px 6px),linear-gradient(158deg,#ffffff,#fbfaf6 60%,#f1efe8);--face-edge:rgba(20,30,40,.13)}
+body[data-face="pearl"]{--face-bg:linear-gradient(158deg,#ffffff 0%,#fbfdff 55%,#eef4f8 100%);--face-edge:rgba(30,60,80,.14)}
+.card.suit-C{color:var(--c-C)}
+.card.suit-D{color:var(--c-D)}
+.card.suit-S{color:var(--c-S)}
+.card.suit-H{color:var(--c-H)}
+.card:not(.back){box-shadow:0 2px 4px rgba(0,0,0,.18),0 10px 20px rgba(0,0,0,.28),inset 0 0 0 1px var(--face-edge,rgba(20,30,40,.12))}
+
+/* 五套牌背：图案与配色各不相同 */
+body[data-back="heart"]{
+  --back-base:#7d1f30;--back-core:#4e1020;--back-ink:rgba(255,220,220,.28);
+  --back-img:repeating-linear-gradient(45deg,rgba(255,255,255,.13) 0 2px,transparent 2px 9px),
+    repeating-linear-gradient(-45deg,rgba(0,0,0,.18) 0 2px,transparent 2px 9px),
+    radial-gradient(circle at 50% 50%,rgba(255,180,180,.14),transparent 62%),#7d1f30;
+  --back-radius:50%;--back-border:2px solid rgba(255,214,190,.85);
+  --back-chip:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 2px,transparent 2px 5px),#7d1f30}
+body[data-back="diamond"]{
+  --back-base:#12566b;--back-core:#0a3444;--back-ink:rgba(190,240,255,.30);
+  --back-img:repeating-linear-gradient(45deg,rgba(255,255,255,.16) 0 1px,transparent 1px 12px),
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.16) 0 1px,transparent 1px 12px),
+    linear-gradient(150deg,#1b7189,#0d4256),#12566b;
+  --back-radius:12%;--back-border:2px dashed rgba(180,238,255,.85);
+  --back-chip:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0 1px,transparent 1px 6px),#12566b}
+body[data-back="spade"]{
+  --back-base:#1f2a35;--back-core:#0d151d;--back-ink:rgba(220,235,255,.22);
+  --back-img:repeating-conic-gradient(from 45deg,rgba(255,255,255,.10) 0% 25%,transparent 0% 50%) 0 0/18px 18px,
+    linear-gradient(160deg,#33414f,#18222c),#1f2a35;
+  --back-radius:50%;--back-border:3px double rgba(226,236,250,.85);
+  --back-chip:repeating-conic-gradient(from 45deg,rgba(255,255,255,.16) 0% 25%,transparent 0% 50%) 0 0/8px 8px,#25313d}
+body[data-back="club"]{
+  --back-base:#205a3c;--back-core:#123424;--back-ink:rgba(205,255,220,.28);
+  --back-img:radial-gradient(circle at 50% 50%,rgba(255,255,255,.20) 0 2.2px,transparent 2.6px) 0 0/12px 12px,
+    linear-gradient(165deg,#2f7a51,#174430),#205a3c;
+  --back-radius:22%;--back-border:2px solid rgba(190,245,210,.85);
+  --back-chip:radial-gradient(circle,rgba(255,255,255,.28) 0 1px,transparent 1.5px) 0 0/5px 5px,#205a3c}
+body[data-back="star"]{
+  --back-base:#6b4712;--back-core:#3a2709;--back-ink:rgba(255,225,150,.32);
+  --back-img:repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 2px,transparent 2px 10px),
+    repeating-radial-gradient(circle at 50% 50%,rgba(255,220,140,.13) 0 5px,transparent 5px 12px),
+    linear-gradient(160deg,#997022,#513307),#6b4712;
+  --back-radius:50%;--back-border:2px solid rgba(255,224,150,.9);
+  --back-clip:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  --back-chip:repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 2px,transparent 2px 6px),#6b4712}
+body[data-back="heart"] .card.back::after{content:'♥'}
+body[data-back="diamond"] .card.back::after{content:'♦'}
+body[data-back="spade"] .card.back::after{content:'♠'}
+body[data-back="club"] .card.back::after{content:'♣'}
+body[data-back="star"] .card.back::after{content:'✦'}
+
+/* ============ 背景 ============ */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg-glow{position:absolute;inset:-20%;background:
+  radial-gradient(38% 42% at 18% 12%, rgba(28,116,96,.34), transparent 70%),
+  radial-gradient(44% 46% at 84% 16%, rgba(142,42,58,.24), transparent 70%),
+  radial-gradient(50% 50% at 50% 108%, rgba(22,88,76,.30), transparent 70%),
+  linear-gradient(160deg,#06131a 0%,#04100f 48%,#0a0c12 100%)}
+.bg-grain{position:absolute;inset:0;opacity:.22;background-image:
+  repeating-radial-gradient(circle at 17% 27%, rgba(255,255,255,.055) 0 1px, transparent 1px 4px),
+  repeating-radial-gradient(circle at 71% 63%, rgba(255,255,255,.035) 0 1px, transparent 1px 5px);
+  background-size:130px 130px,190px 190px}
+.bg-heart{position:absolute;color:rgba(233,196,106,.10);font-size:22px;animation:drift 18s linear infinite}
+@keyframes drift{0%{transform:translateY(30px) rotate(0deg);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(-90vh) rotate(220deg);opacity:0}}
+
+/* ============ 布局 ============ */
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding:14px 20px 12px;gap:10px;max-width:1440px;margin:0 auto}
+.topbar{display:flex;align-items:center;gap:18px;min-height:66px}
+.brand{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.brand-mark{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:28px;color:#fff;
+  background:linear-gradient(145deg,#d33b52,#8c1c2e);box-shadow:0 6px 18px rgba(190,40,62,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+.brand h1{font-size:22px;letter-spacing:.14em;font-weight:800;line-height:1.1}
+.brand span{display:block;font-size:10px;letter-spacing:.28em;color:var(--gold);margin-top:4px;font-weight:700}
+
+.scoreboard{display:flex;gap:8px;flex:1;justify-content:center;flex-wrap:wrap}
+.score-pill{display:flex;align-items:center;gap:9px;padding:7px 13px;border-radius:12px;min-width:116px;
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);transition:all .25s var(--ease);position:relative;overflow:hidden}
+.score-pill.active{border-color:rgba(233,196,106,.75);background:rgba(233,196,106,.10);box-shadow:0 0 0 1px rgba(233,196,106,.25),0 0 22px rgba(233,196,106,.18)}
+.score-pill.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.sp-avatar{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:14px;font-weight:800;background:rgba(255,255,255,.09);color:var(--gold-2)}
+.score-pill.you .sp-avatar{background:linear-gradient(145deg,#2c7d68,#174b3f);color:#fff}
+.sp-name{font-size:12.5px;color:var(--muted);line-height:1.25}
+.sp-total{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.sp-round{font-size:11px;color:var(--muted)}
+.sp-total.danger{color:#ff8b8b}
+.top-actions{display:flex;gap:6px;flex:0 0 auto}
+.icon-btn{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:17px;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:var(--gold-2);transition:all .18s var(--ease)}
+.icon-btn:hover{background:rgba(233,196,106,.16);transform:translateY(-2px);border-color:rgba(233,196,106,.5)}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* ============ 牌桌 ============ */
+.table-wrap{flex:1;display:grid;place-items:center;min-height:0}
+.table{position:relative;width:min(100%,1080px);height:100%;max-height:590px;min-height:340px;border-radius:38px;
+  background:radial-gradient(ellipse at 50% 38%,#155344 0%,#0c3b31 42%,#06231e 78%,#041814 100%);
+  box-shadow:inset 0 0 0 2px rgba(233,196,106,.22),inset 0 0 90px rgba(0,0,0,.55),inset 0 18px 60px rgba(0,0,0,.35),0 26px 70px rgba(0,0,0,.55);overflow:hidden}
+.table::before{content:'';position:absolute;inset:12px;border-radius:28px;border:1px solid rgba(233,196,106,.10);pointer-events:none}
+.table::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:repeating-linear-gradient(38deg,rgba(255,255,255,.05) 0 1px,transparent 1px 7px);
+  mask-image:radial-gradient(ellipse at center,#000 10%,transparent 75%)}
+.table-felt{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.05),transparent 60%)}
+#fx-layer{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:hidden;border-radius:inherit}
+.fx-flash{position:absolute;inset:0;animation:flashout .9s ease-out both}
+.fx-flash.heart{background:radial-gradient(circle at 50% 50%,rgba(235,60,85,.40),transparent 72%);box-shadow:inset 0 0 130px rgba(230,50,70,.55)}
+.fx-flash.queen{background:radial-gradient(circle at 50% 50%,rgba(130,95,225,.28),rgba(8,10,22,.55) 78%);box-shadow:inset 0 0 150px rgba(95,60,195,.5)}
+@keyframes flashout{0%{opacity:0}14%{opacity:1}100%{opacity:0}}
+
+.seat-info{position:absolute;z-index:4;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;
+  background:rgba(3,14,16,.55);border:1px solid rgba(255,255,255,.09);font-size:12.5px;color:var(--muted);
+  backdrop-filter:blur(8px);white-space:nowrap;transition:all .25s var(--ease)}
+.seat-info .dot{width:6px;height:6px;border-radius:50%;background:#4d6a63}
+.seat-info.on{color:#fff;border-color:rgba(233,196,106,.55);box-shadow:0 0 18px rgba(233,196,106,.18)}
+.seat-info.on .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.seat-north{top:5px;left:50%;transform:translateX(-50%);padding:4px 11px;font-size:11.5px}
+.seat-west{left:14px;top:16px}
+.seat-east{right:14px;top:16px}
+
+.opp-hand{position:absolute;z-index:2}
+.opp-north{width:min(46%,380px);height:66px;left:50%;top:26px;transform:translateX(-50%)}
+.opp-north .card{width:calc(var(--card-w)*.44);height:calc(var(--card-h)*.44)}
+.opp-west{width:100px;height:min(52%,260px);left:10px;top:50%;transform:translateY(-50%)}
+.opp-east{width:100px;height:min(52%,260px);right:10px;top:50%;transform:translateY(-50%)}
+.opp-hand .card{position:absolute;width:calc(var(--card-w)*.66);height:calc(var(--card-h)*.66)}
+
+.arena{position:absolute;z-index:5;left:50%;top:60%;transform:translate(-50%,-50%);
+  display:grid;grid-template-columns:repeat(3,var(--card-w));grid-template-rows:repeat(3,calc(var(--card-h)*.86));gap:4px;place-items:center}
+.slot{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.slot .card{position:absolute;z-index:2;zoom:.86}
+.slot-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.center-emblem{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font-size:32px;
+  color:rgba(233,196,106,.55);border:1px solid rgba(233,196,106,.22);
+  background:radial-gradient(circle,rgba(233,196,106,.10),transparent 70%);box-shadow:0 0 34px rgba(233,196,106,.08)}
+.center-meta{font-size:11.5px;color:rgba(233,196,106,.72);text-align:center;line-height:1.65;letter-spacing:.03em}
+.slot-north{grid-area:1/2}.slot-west{grid-area:2/1}.slot-center{grid-area:2/2}.slot-east{grid-area:2/3}.slot-south{grid-area:3/2}
+.slot.winner-slot::after{content:'';position:absolute;inset:-8px;border-radius:16px;border:2px solid var(--gold);
+  box-shadow:0 0 26px rgba(233,196,106,.45);animation:winpulse .7s var(--ease) both}
+@keyframes winpulse{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.trick-badge{position:absolute;z-index:4;left:18px;bottom:16px;font-size:11px;letter-spacing:.16em;color:rgba(233,196,106,.68);white-space:nowrap}
+.phase-banner{position:absolute;z-index:4;bottom:14px;right:16px;left:auto;transform:none;padding:8px 20px;border-radius:20px;
+  font-size:13.5px;letter-spacing:.05em;white-space:nowrap;background:rgba(3,14,16,.5);border:1px solid rgba(233,196,106,.18);
+  color:var(--gold-2);backdrop-filter:blur(8px)}
+
+/* ============ 卡牌 ============ */
+.card{position:relative;width:var(--card-w);height:var(--card-h);flex:0 0 auto;border-radius:11px;
+  background:var(--face-bg);color:#16212c;
+  box-shadow:0 2px 4px rgba(0,0,0,.22),0 9px 18px rgba(0,0,0,.30),inset 0 0 0 1px rgba(30,40,50,.10);
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),filter .18s var(--ease),opacity .18s;will-change:transform}
+.card .corner{position:absolute;text-align:left;line-height:1;font-weight:800;letter-spacing:-.02em}
+.card .corner b{display:block;font-size:calc(var(--card-w)*.265)}
+.card .corner .s{display:inline-block;font-size:calc(var(--card-w)*.12);margin-top:1px}
+.corner.tl{top:5px;left:5px}
+.corner.br{bottom:5px;right:5px;transform:rotate(180deg)}
+/* 中央花色放大到明显大于角标小花色；两列外移，与角标及中间列都留出空白 */
+.pips{position:absolute;inset:25% 18%}
+.pip{position:absolute;font-size:calc(var(--card-w)*.17);line-height:.86;white-space:nowrap;
+  transform:translate(-50%,-50%);text-shadow:0 1px 0 rgba(255,255,255,.9),0 0 1px rgba(255,255,255,.7)}
+.pip.bottom{transform:translate(-50%,-50%) rotate(180deg)}
+.ace{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--card-w)*.70);text-shadow:0 2px 12px rgba(0,0,0,.14)}
+.face{position:absolute;inset:22% 19%;border:1.5px solid currentColor;border-radius:7px;opacity:.9;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden}
+.face::before,.face::after{content:'❖';position:absolute;font-size:calc(var(--card-w)*.14);opacity:.6}
+.face::before{top:3px;left:5px}.face::after{bottom:3px;right:5px;transform:rotate(180deg)}
+.face-letter{font-family:Georgia,"Times New Roman",serif;font-size:calc(var(--card-w)*.55);font-weight:700;line-height:1}
+.face-suit{font-size:calc(var(--card-w)*.25)}
+
+.card.back{
+  border:3px solid #f4e7cd;
+  background:var(--back-img);
+  box-shadow:0 3px 10px rgba(0,0,0,.35)
+}
+.card.back::before{content:'';position:absolute;inset:7%;border-radius:7px;
+  border:1px solid rgba(255,240,205,.42);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12);pointer-events:none}
+.card.back::after{position:absolute;inset:26%;border-radius:var(--back-radius,50%);clip-path:var(--back-clip,none);
+  display:grid;place-items:center;font-size:calc(var(--card-w)*.38);color:#ffefcb;background:var(--back-core);
+  border:var(--back-border);box-shadow:0 3px 12px rgba(0,0,0,.45);
+  text-shadow:0 2px 6px rgba(0,0,0,.55)}
+
+/* ============ 手牌与操作 ============ */
+.player-zone{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 78px)}
+.player-meta{display:flex;align-items:center;gap:9px;align-self:flex-start;font-size:13px}
+.player-meta .avatar{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:12px;font-weight:800;
+  background:linear-gradient(145deg,#2c7d68,#174b3f);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.player-meta strong{display:block;font-size:13.5px}
+.player-meta span{display:block;font-size:11.5px;color:var(--muted)}
+.hand{--card-w:clamp(74px,8.2vw,112px);--card-h:calc(var(--card-w)*1.42);
+  display:flex;justify-content:center;align-items:flex-end;min-height:calc(var(--card-h) + 30px);padding-top:28px;width:100%}
+.hand .card{margin-left:calc(var(--card-w) * -.34)}
+.hand .card:first-child{margin-left:0}
+.hand .card.legal,.hand .card.pickable{cursor:pointer}
+.hand .card.legal:hover,.hand .card.pickable:hover{transform:translateY(-18px);box-shadow:0 16px 30px rgba(0,0,0,.4),0 0 0 2px rgba(233,196,106,.55);z-index:20}
+.hand .card.illegal{filter:brightness(.5);cursor:not-allowed}
+.hand .card.selected{transform:translateY(-28px) rotate(-2deg);z-index:30;box-shadow:0 0 0 2px var(--gold),0 20px 34px rgba(0,0,0,.48),0 0 26px rgba(233,196,106,.5)}
+.hand .card.selected:hover{transform:translateY(-32px) rotate(-2deg)}
+.hand .card.suggested{animation:suggest 1.1s ease-in-out 2;z-index:25}
+@keyframes suggest{0%,100%{box-shadow:0 2px 4px rgba(0,0,0,.22),0 9px 18px rgba(0,0,0,.30)}50%{box-shadow:0 0 0 3px var(--gold),0 0 30px rgba(233,196,106,.75)}}
+.hand .card.launching{animation:launch .34s var(--ease) both;z-index:40}
+@keyframes launch{0%{transform:translateY(0)}45%{transform:translateY(-34px) scale(1.06);box-shadow:0 0 0 3px var(--gold),0 22px 40px rgba(0,0,0,.5),0 0 32px rgba(233,196,106,.7)}100%{transform:translateY(-10px) scale(1.02)}}
+.hand .card.incoming{animation:incoming 1.6s var(--ease) 1}
+@keyframes incoming{0%,60%{box-shadow:0 0 0 2px rgba(233,196,106,.9),0 0 22px rgba(233,196,106,.55)}100%{box-shadow:0 2px 4px rgba(0,0,0,.22),0 9px 18px rgba(0,0,0,.30)}}
+
+.controls{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px;flex-wrap:wrap}
+.btn{padding:10px 24px;border-radius:12px;font-size:14.5px;font-weight:700;letter-spacing:.04em;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);transition:all .18s var(--ease)}
+.btn:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(233,196,106,.55);background:rgba(233,196,106,.13)}
+.btn:disabled{opacity:.32;cursor:not-allowed}
+.btn.primary{color:#241a09;background:linear-gradient(135deg,#f7dfa4,#e2b95e);border-color:rgba(255,240,200,.6);box-shadow:0 6px 18px rgba(226,185,94,.28)}
+.btn.primary:hover:not(:disabled){background:linear-gradient(135deg,#ffebb8,#edc66c);box-shadow:0 10px 24px rgba(226,185,94,.42)}
+.tip{font-size:12.5px;color:var(--muted);text-align:center}
+#btn-pass{position:relative;font-size:15.5px;padding:13px 38px;letter-spacing:.1em;animation:breathe 1.9s ease-in-out infinite}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(233,196,106,.55),0 6px 20px rgba(226,185,94,.30);filter:brightness(1)}
+  50%{box-shadow:0 0 0 14px rgba(233,196,106,0),0 0 38px rgba(233,196,106,.75);filter:brightness(1.12)}
+}
+body.pass-mode #btn-pass{order:1}
+body.pass-mode #action-tip{order:2;flex-basis:100%;text-align:center}
+
+/* ============ 浮层 ============ */
+.overlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;
+  background:rgba(3,9,12,.74);backdrop-filter:blur(16px);animation:fade .25s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.panel{width:min(100%,580px);max-height:88vh;overflow:auto;border-radius:22px;padding:28px;
+  background:linear-gradient(160deg,rgba(18,38,40,.94),rgba(8,20,24,.96));
+  border:1px solid rgba(233,196,106,.24);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06);animation:rise .35s var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.panel.wide{width:min(100%,740px)}
+/* 菜单：内容可滚动，底部操作区固定，开始按钮永远在首屏 */
+#overlay-menu .panel,#overlay-settings .panel{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.menu-scroll,.settings-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:22px 26px;
+  scrollbar-width:thin;scrollbar-color:rgba(233,196,106,.35) transparent}
+.menu-scroll::-webkit-scrollbar,.settings-scroll::-webkit-scrollbar{width:7px}
+.menu-scroll::-webkit-scrollbar-thumb,.settings-scroll::-webkit-scrollbar-thumb{background:rgba(233,196,106,.35);border-radius:8px}
+.menu-footer,.settings-footer{flex:0 0 auto;padding:14px 26px 18px;border-top:1px solid rgba(233,196,106,.20);
+  background:linear-gradient(160deg,rgba(16,34,36,.98),rgba(7,18,22,.99));box-shadow:0 -10px 26px rgba(0,0,0,.28)}
+#overlay-settings .panel{position:relative}
+#overlay-settings .panel-head{position:static}
+#overlay-settings .icon-btn.close{position:absolute;right:18px;top:16px;z-index:6;
+  background:rgba(10,24,27,.92);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#overlay-menu .panel{max-height:92vh}
+#overlay-menu .menu-scroll{padding:16px 26px 12px}
+#overlay-menu .menu-title .big{font-size:33px}
+#overlay-menu .menu-title .desc{margin-top:6px;font-size:12.5px;line-height:1.6}
+#overlay-menu .menu-suit{margin:4px 0 6px;font-size:20px}
+#overlay-menu h3{margin:10px 0 6px}
+#overlay-menu .diff-card{padding:8px 8px;gap:2px}
+#overlay-menu .diff-card small{font-size:10.5px;line-height:1.4}
+#overlay-menu .row{padding:5px 0;font-size:12.5px}
+#overlay-menu .btn-block,#overlay-settings .btn-block{margin-top:0;padding:12px}
+.panel h2{font-size:23px;letter-spacing:.08em;margin-bottom:6px}
+.panel .sub{font-size:13.5px;color:var(--muted);margin-bottom:20px;line-height:1.75}
+.panel .close{position:absolute;right:18px;top:16px}
+.panel-head{position:relative}
+.panel h3{font-size:13.5px;letter-spacing:.16em;color:var(--gold);margin:20px 0 10px;text-transform:uppercase}
+
+.menu-title{text-align:center;margin-bottom:4px}
+.menu-title .big{font-size:40px;font-weight:800;letter-spacing:.22em;background:linear-gradient(120deg,#fff7e2,#e9c46a 60%,#c99a45);-webkit-background-clip:text;background-clip:text;color:transparent}
+.menu-title .en{font-size:11px;letter-spacing:.5em;color:var(--gold);margin-top:6px}
+.menu-title .desc{font-size:13.5px;color:var(--muted);margin-top:12px;line-height:1.8}
+.menu-suit{text-align:center;font-size:26px;color:rgba(233,196,106,.55);letter-spacing:.5em;margin:10px 0 18px}
+.diff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.diff-card{padding:14px 10px;border-radius:14px;text-align:center;background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.10);transition:all .2s var(--ease);display:flex;flex-direction:column;gap:6px;align-items:center}
+.diff-card:hover{transform:translateY(-3px);background:rgba(255,255,255,.08)}
+.diff-card.active{border-color:var(--gold);background:rgba(233,196,106,.12);box-shadow:0 0 0 1px rgba(233,196,106,.3),0 8px 24px rgba(233,196,106,.12)}
+.dc-icon{font-size:23px;color:var(--gold-2)}
+.diff-card strong{font-size:15px}
+.diff-card small{font-size:11.5px;color:var(--muted);line-height:1.55}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px;flex-wrap:wrap}
+.row:last-of-type{border-bottom:0}
+.row .label{color:var(--muted)}
+.switch{width:46px;height:25px;border-radius:14px;background:rgba(255,255,255,.14);position:relative;transition:background .2s;flex:0 0 auto}
+.switch::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;top:3px;left:3px;background:#dce8e4;transition:transform .2s var(--ease)}
+.switch.on{background:linear-gradient(135deg,#d9ac54,#a87c2c)}
+.switch.on::after{transform:translateX(21px);background:#fff}
+.seg{display:flex;gap:4px;background:rgba(0,0,0,.25);padding:3px;border-radius:10px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12px;color:var(--muted);white-space:nowrap}
+.seg button.on{background:rgba(233,196,106,.18);color:var(--gold-2)}
+.swatch-row{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}
+.swatch{width:9px;height:9px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.28)}
+.face-chip,.back-chip{width:13px;height:13px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:5px;border:1px solid rgba(255,255,255,.30)}
+.face-chip{background:linear-gradient(150deg,#fff,#f2efe6)}
+/* 主题实时预览 */
+.theme-preview{--card-w:46px;--card-h:calc(var(--card-w)*1.42);display:flex;flex-direction:column;gap:9px;padding:12px 14px;border-radius:14px;
+  background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.09);margin:4px 0 12px}
+.theme-preview .card{border-radius:7px}
+#overlay-menu .theme-preview{--card-w:31px;--card-h:calc(var(--card-w)*1.42);padding:6px 10px;gap:4px;margin:2px 0 5px}
+#overlay-menu .tp-cards{gap:6px}
+#overlay-menu .tp-suits{font-size:18px;padding-top:4px;gap:10px}
+#overlay-menu .tp-head{font-size:11px}
+.tp-head{font-size:11.5px;color:var(--gold-2);letter-spacing:.06em;display:flex;justify-content:space-between;gap:10px}
+.tp-head em{font-style:normal;color:var(--muted);font-size:11px}
+.tp-cards{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tp-suits{display:flex;gap:16px;align-items:center;font-size:24px;border-top:1px solid rgba(255,255,255,.08);padding-top:9px;line-height:1}
+.tp-suits .s-C{color:var(--c-C)}.tp-suits .s-D{color:var(--c-D)}.tp-suits .s-S{color:var(--c-S)}.tp-suits .s-H{color:var(--c-H)}
+.tp-suits em{font-style:normal;font-size:11.5px;color:var(--muted);margin-left:auto}
+.live-note{display:flex;align-items:center;gap:8px;margin:2px 0 12px;padding:9px 13px;border-radius:11px;
+  font-size:12.5px;color:#bfe8d2;background:rgba(60,170,120,.12);border:1px solid rgba(90,200,150,.32)}
+.live-note b{color:#e9f7ee}
+.test-sfx{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.6}
+input[type=range]{accent-color:var(--gold);width:140px}
+.btn-block{width:100%;margin-top:22px;padding:14px;font-size:15px}
+.ghost-btn{font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.rules-list{font-size:13.5px;line-height:1.95;color:#cddbd6}
+.rules-list li{margin:0 0 8px 0 18px}
+.rules-list b{color:var(--gold-2)}
+.score-table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.score-table th,.score-table td{padding:8px 9px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)}
+.score-table th{color:var(--gold);font-size:11.5px;letter-spacing:.08em}
+.score-table tr.shoot td{background:rgba(233,196,106,.08)}
+.score-table td.hi{color:#ff9b9b}
+.end-rank{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.045);margin-bottom:8px}
+.end-rank.champ{background:linear-gradient(100deg,rgba(233,196,106,.20),rgba(233,196,106,.05));border:1px solid rgba(233,196,106,.4)}
+.end-rank .medal{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.08);font-weight:800;color:var(--gold-2)}
+.end-rank .nm{flex:1;font-size:14.5px}
+.end-rank .sc{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.big-banner{position:absolute;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;animation:banner 2.1s var(--ease) both;white-space:nowrap}
+.big-banner .t{font-size:clamp(28px,4.6vw,54px);font-weight:800;letter-spacing:.18em;color:#fff3cd;text-shadow:0 0 30px rgba(233,196,106,.8),0 6px 24px rgba(0,0,0,.6)}
+.big-banner .s{font-size:12.5px;letter-spacing:.32em;color:var(--gold);margin-top:8px}
+@keyframes banner{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}18%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+
+/* ============ 射月庆祝 ============ */
+#screen-fx{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.moon-fx{position:absolute;inset:0}
+.moon-glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,225,150,.42),rgba(233,196,106,.12) 40%,transparent 72%);animation:moonglow 3.4s ease-out both}
+@keyframes moonglow{0%{opacity:0;transform:scale(.4)}18%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
+.moon-confetti{position:absolute;top:-12%;animation:confall linear both;opacity:0;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+@keyframes confall{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:1}92%{opacity:1}100%{transform:translateY(120vh) rotate(540deg);opacity:0}}
+.moon-banner{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;animation:moonrise 3.5s var(--ease) both;white-space:nowrap}
+.moon-banner .mt{font-size:clamp(30px,5.4vw,64px);font-weight:800;letter-spacing:.16em;
+  background:linear-gradient(120deg,#fff8e0,#f0c46a 55%,#ff9db0);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 26px rgba(233,196,106,.85));animation:moonpulse 1.1s ease-in-out infinite alternate}
+.moon-banner .ms{font-size:14px;letter-spacing:.2em;color:#ffe9b8;margin-top:14px;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+@keyframes moonrise{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}16%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.12)}}
+@keyframes moonpulse{from{filter:drop-shadow(0 0 18px rgba(233,196,106,.6))}to{filter:drop-shadow(0 0 40px rgba(255,210,120,1))}}
+
+/* ============ Toast ============ */
+.toast-stack{position:fixed;z-index:80;top:92px;right:22px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{padding:11px 17px;border-radius:12px;font-size:13px;max-width:340px;line-height:1.55;
+  background:rgba(10,24,26,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 28px rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);animation:toastin .3s var(--ease)}
+.toast.info{border-color:rgba(233,196,106,.4);color:var(--gold-2)}
+.toast.warn{border-color:rgba(230,90,90,.5);color:#ffb3b3}
+.toast.success{border-color:rgba(90,200,150,.5);color:#a9e9c9}
+.toast.moon{border-color:var(--gold);color:#fff0c4;background:rgba(60,40,12,.92);box-shadow:0 0 30px rgba(233,196,106,.3)}
+@keyframes toastin{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ============ 响应式 ============ */
+@media (max-width:900px){
+  :root{--card-w:clamp(48px, 8vw, 68px)}
+  body{font-size:14px}
+  #app{padding:10px 10px 8px}
+  .brand h1{font-size:17px}.brand span{font-size:9px}
+  .score-pill{min-width:90px;padding:5px 8px}.sp-avatar{width:25px;height:25px}
+  .table{border-radius:24px}
+  .opp-north{width:250px;height:46px;top:30px}
+  .opp-west,.opp-east{width:76px;height:190px}
+  .arena{left:50%;top:78px;bottom:46px;height:auto;transform:translateX(-50%);grid-template-rows:repeat(3,minmax(0,1fr))}
+  .slot .card{zoom:.70}
+  .opp-hand .card{width:calc(var(--card-w)*.60);height:calc(var(--card-h)*.60)}
+  .hand{--card-w:clamp(50px,8.8vw,72px);--card-h:calc(var(--card-w)*1.42);padding-top:20px}
+  .hand .card{margin-left:calc(var(--card-w) * -.46)}
+  .diff-grid{grid-template-columns:1fr}
+  .diff-card{flex-direction:row;text-align:left;justify-content:flex-start;gap:12px}
+  .seg button{padding:5px 9px;font-size:11px}
+}
+@media (max-height:720px){
+  .table{max-height:440px}
+  .arena{left:50%;top:88px;bottom:48px;height:auto;transform:translateX(-50%);grid-template-rows:repeat(3,minmax(0,1fr))}
+  .slot .card{zoom:.70}
+}
+</style>
+</head>
+<body data-face="classic" data-back="heart" data-suit="classic">
+<div class="bg"><div class="bg-glow"></div><div class="bg-grain"></div></div>
+<div id="hearts-bg"></div>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">♥</div>
+      <div><h1>红心大战</h1><span>HEARTS · OFFLINE</span></div>
+    </div>
+    <div class="scoreboard" id="scoreboard"></div>
+    <div class="top-actions">
+      <button class="icon-btn" id="btn-hint" title="出牌提示">✦</button>
+      <button class="icon-btn" id="btn-score" title="计分板">▤</button>
+      <button class="icon-btn" id="btn-rules" title="规则">≡</button>
+      <button class="icon-btn" id="btn-settings" title="设置">⚙</button>
+    </div>
+  </header>
+
+  <main class="table-wrap">
+    <div class="table" id="table">
+      <div class="table-felt"></div>
+      <div class="seat-info seat-north" id="info-2"><i class="dot"></i><span>北家</span></div>
+      <div class="seat-info seat-west" id="info-1"><i class="dot"></i><span>西家</span></div>
+      <div class="seat-info seat-east" id="info-3"><i class="dot"></i><span>东家</span></div>
+
+      <div class="opp-hand opp-north" id="hand-2"></div>
+      <div class="opp-hand opp-west" id="hand-1"></div>
+      <div class="opp-hand opp-east" id="hand-3"></div>
+
+      <div class="arena">
+        <div class="slot slot-north" id="slot-2"></div>
+        <div class="slot slot-west" id="slot-1"></div>
+        <div class="slot slot-center">
+          <div class="center-emblem">♥</div>
+          <div class="center-meta" id="center-meta"></div>
+        </div>
+        <div class="slot slot-east" id="slot-3"></div>
+        <div class="slot slot-south" id="slot-0"></div>
+      </div>
+      <div class="trick-badge" id="trick-badge"></div>
+      <div id="fx-layer"></div>
+      <div class="phase-banner" id="phase-banner">准备开始</div>
+    </div>
+  </main>
+
+  <section class="player-zone">
+    <div class="player-meta">
+      <div class="avatar">你</div>
+      <div><strong>南家 · 你</strong><span id="player-sub">等待开始</span></div>
+    </div>
+    <div class="hand" id="hand-0"></div>
+    <div class="controls">
+      <button class="btn primary hidden" id="btn-pass">传牌 <span id="pass-count">0/3</span></button>
+      <span class="tip" id="action-tip">点击「开始游戏」进入牌局</span>
+    </div>
+  </section>
+</div>
+
+<!-- 开始菜单 -->
+<div class="overlay" id="overlay-menu">
+  <div class="panel">
+    <div class="menu-scroll">
+    <div class="menu-title">
+      <div class="big">红心大战</div>
+      <div class="en">H E A R T S</div>
+      <div class="desc">经典四人纸牌 · 分数越低越好<br>单文件离线运行 · 零外部请求</div>
+    </div>
+    <div class="menu-suit">♣ ♦ ♠ ♥</div>
+    <h3>选择对手难度</h3>
+    <div class="diff-grid" id="menu-diff">
+      <button class="diff-card" data-diff="easy"><span class="dc-icon">☘</span><strong>简单</strong><small>随缘出牌<br>适合熟悉规则</small></button>
+      <button class="diff-card" data-diff="medium"><span class="dc-icon">◆</span><strong>中等</strong><small>会躲分牌、甩高牌<br>有基本攻防意识</small></button>
+      <button class="diff-card" data-diff="hard"><span class="dc-icon">♛</span><strong>困难</strong><small>记牌、防射月、造缺门<br>终局控分</small></button>
+    </div>
+    <h3>偏好</h3>
+    <div class="row"><span class="label">游戏音效（实时合成）</span><div class="switch" id="menu-sound"></div></div>
+    <div class="row"><span class="label">背景音乐（程序生成的轻柔循环）</span><div class="switch" id="menu-music"></div></div>
+    <div class="row"><span class="label">动画速度</span><div class="seg" id="menu-speed"><button data-speed="1">标准</button><button data-speed="1.8">快速</button><button data-speed="3">极速</button></div></div>
+    <h3>牌面与牌背 · 花色固定经典黑红</h3>
+    <div class="theme-preview" data-preview>
+      <div class="tp-head"><span>◆ 实时预览</span><em>点下方选项即刻变化</em></div>
+      <div class="tp-cards"></div>
+      <div class="tp-suits"></div>
+    </div>
+    <div class="row"><span class="label">牌面样式（全部白底）</span><div class="seg" id="menu-face">
+      <button data-theme-face="classic">象牙白</button><button data-theme-face="bright">纯白</button>
+      <button data-theme-face="linen">细纹白</button><button data-theme-face="pearl">冷白瓷面</button></div></div>
+    <div class="row"><span class="label">牌背图案 / 配色</span><div class="seg" id="menu-back">
+      <button data-theme-back="heart">♥ 酒红</button><button data-theme-back="diamond">♦ 海蓝</button>
+      <button data-theme-back="spade">♠ 石板</button><button data-theme-back="club">♣ 墨绿</button>
+      <button data-theme-back="star">✦ 琥珀</button></div></div>
+    </div><!-- /menu-scroll -->
+    <div class="menu-footer">
+      <button class="btn primary btn-block" id="btn-start">开始游戏</button>
+      <div style="text-align:center;margin-top:10px"><button class="ghost-btn" id="menu-rules">查看完整规则</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 规则 -->
+<div class="overlay hidden" id="overlay-rules">
+  <div class="panel wide">
+    <div class="panel-head"><h2>规则说明</h2><p class="sub">微软经典红心大战（Hearts）标准规则</p><button class="icon-btn close" data-close="overlay-rules">✕</button></div>
+    <ol class="rules-list">
+      <li><b>牌与目标</b>：4 人各 13 张，共 52 张（无大小王）。每墩同花色点数最大者收墩。<b>每张红心 1 分，黑桃 Q 13 分</b>，全局共 26 分，得分越低越好。</li>
+      <li><b>传牌</b>：每局开局前选 3 张传给别家，第 1 局向左（西家）、第 2 局向右（东家）、第 3 局给对家（北家）、第 4 局不传，之后循环。</li>
+      <li><b>首攻</b>：持 <b>梅花 2</b> 者必须先出梅花 2 开始第一墩；之后每墩由上墩赢家首攻。</li>
+      <li><b>跟牌</b>：有领出花色必须跟；没有该花色才可垫任意牌。</li>
+      <li><b>首墩限制</b>：第一墩任何人不得出红心或黑桃 Q（除非手中别无选择）。</li>
+      <li><b>红心未破</b>：在出现第一张红心之前，不能主动首攻红心（除非手里只剩红心）；垫出红心也算「破」，伴随专属音效与红色闪光。</li>
+      <li><b>射月</b>：若一人独收全部 26 分，则自己加 0 分，<b>其余三家各加 26 分</b>，并触发全屏庆祝。</li>
+      <li><b>结束</b>：任意玩家累计分达到 100 分时牌局结束，<b>累计分最低者获胜</b>。</li>
+    </ol>
+    <h3>操作</h3>
+    <div class="rules-list">轮到你时，<b>直接点击亮色的手牌即可打出</b>（变暗的牌为当前不合法）；传牌阶段点选 3 张后点中央呼吸按钮。右上角 ✦ 高亮建议牌，▤ 查看逐局计分，⚙ 可随时切换难度、白底牌面、五套图案牌背与声音——花色固定经典黑红，<b>全部即时生效，当前牌局不会重开</b>；设置里还能试听 7 段特殊牌音效（梅花 2 首攻、红心、破心、黑桃 Q、垫分、收分墩、射月）。</div>
+  </div>
+</div>
+
+<!-- 计分板 -->
+<div class="overlay hidden" id="overlay-score">
+  <div class="panel wide">
+    <div class="panel-head"><h2>逐局计分</h2><p class="sub">每局得分与累计总分 · 有人达到 100 分即结束</p><button class="icon-btn close" data-close="overlay-score">✕</button></div>
+    <div id="score-body"></div>
+  </div>
+</div>
+
+<!-- 设置 -->
+<div class="overlay hidden" id="overlay-settings">
+  <div class="panel">
+    <div class="settings-scroll">
+    <div class="panel-head"><h2>设置</h2><p class="sub">修改后立刻作用于当前画面与牌局</p></div>
+    <button class="icon-btn close" data-close="overlay-settings">✕</button>
+    <div class="live-note"><span>✓</span><span><b>即时生效，无需重开</b> · 当前牌局会继续，桌面、手牌、牌背与声音马上更新</span></div>
+    <h3>对手难度</h3>
+    <div class="diff-grid" id="settings-diff">
+      <button class="diff-card" data-diff="easy"><span class="dc-icon">☘</span><strong>简单</strong><small>随机决策</small></button>
+      <button class="diff-card" data-diff="medium"><span class="dc-icon">◆</span><strong>中等</strong><small>启发式攻防</small></button>
+      <button class="diff-card" data-diff="hard"><span class="dc-icon">♛</span><strong>困难</strong><small>记牌 + 终局策略</small></button>
+    </div>
+    <h3>牌面与牌背（花色固定经典黑红）</h3>
+    <div class="theme-preview" data-preview>
+      <div class="tp-head"><span>◆ 实时预览</span><em>随下方选项即时变化</em></div>
+      <div class="tp-cards"></div>
+      <div class="tp-suits"></div>
+    </div>
+    <div class="row"><span class="label">牌面样式（全部白底）</span><div class="seg" id="set-face">
+      <button data-theme-face="classic">象牙白</button><button data-theme-face="bright">纯白</button>
+      <button data-theme-face="linen">细纹白</button><button data-theme-face="pearl">冷白瓷面</button></div></div>
+    <div class="row"><span class="label">牌背图案 / 配色</span><div class="seg" id="set-back">
+      <button data-theme-back="heart">♥ 酒红菱格</button><button data-theme-back="diamond">♦ 海蓝网格</button>
+      <button data-theme-back="spade">♠ 石板棋盘</button><button data-theme-back="club">♣ 墨绿圆点</button>
+      <button data-theme-back="star">✦ 琥珀星芒</button></div></div>
+    <h3>声音与画面</h3>
+    <div class="row"><span class="label">音效</span><div class="switch" id="set-sound"></div></div>
+    <div class="row"><span class="label" id="volume-label">音效音量</span><input type="range" id="set-volume" min="0" max="100" value="70"></div>
+    <div class="row"><span class="label">背景音乐</span><div class="switch" id="set-music"></div></div>
+    <div class="row"><span class="label" id="music-volume-label">音乐音量</span><input type="range" id="set-music-volume" min="0" max="100" value="45"></div>
+    <div class="row"><span class="label">动画速度</span><div class="seg" id="set-speed"><button data-speed="1">标准</button><button data-speed="1.8">快速</button><button data-speed="3">极速</button></div></div>
+    <div class="row"><span class="label">高亮可出的牌（新手辅助）</span><div class="switch" id="set-hints"></div></div>
+    <div class="test-sfx">特殊牌音效：梅花 2 首攻、每张红心、第一张红心（破心）、黑桃 Q、垫分、收分墩、射月。<br>
+      <button class="btn" id="btn-sfx-test" style="margin-top:8px;padding:8px 16px;font-size:12.5px">▶ 依次试听 7 段特殊音效</button>
+    </div>
+    </div><!-- /settings-scroll -->
+    <div class="settings-footer">
+      <button class="btn primary btn-block" id="btn-settings-done">完成 · 继续当前牌局</button>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn" style="flex:1;font-size:12.5px" id="btn-restart">重新开始整场</button>
+        <button class="btn" style="flex:1;font-size:12.5px" id="btn-menu">返回主菜单</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 结束 -->
+<div class="overlay hidden" id="overlay-end">
+  <div class="panel">
+    <div class="menu-title"><div class="big" id="end-title">牌局结束</div><div class="desc" id="end-sub"></div></div>
+    <div id="end-body" style="margin-top:22px"></div>
+    <button class="btn primary btn-block" id="end-restart">再来一局</button>
+    <div style="text-align:center;margin-top:12px"><button class="ghost-btn" id="end-menu">返回主菜单</button></div>
+  </div>
+</div>
+
+<div id="screen-fx"></div>
+<div class="toast-stack" id="toasts"></div>
+
+<!-- ==================== 纯逻辑内核（无 DOM 依赖，可独立测试） ==================== -->
+<script id="core">
+var HeartsCore = (function(){
+  'use strict';
+  var SUITS = ['C','D','S','H'];
+  var RANKS = [2,3,4,5,6,7,8,9,10,11,12,13,14];
+  var RANK_LABEL = {11:'J',12:'Q',13:'K',14:'A'};
+
+  function label(c){ return RANK_LABEL[c.rank] || String(c.rank); }
+  function isHeart(c){ return c.suit === 'H'; }
+  function isQS(c){ return c.suit === 'S' && c.rank === 12; }
+  function pointValue(c){ return isQS(c) ? 13 : (isHeart(c) ? 1 : 0); }
+  function makeDeck(){
+    var d = [];
+    for(var i=0;i<SUITS.length;i++) for(var j=0;j<RANKS.length;j++){
+      var s = SUITS[i], r = RANKS[j];
+      d.push({suit:s, rank:r, id:s+'-'+r});
+    }
+    return d;
+  }
+  function shuffle(arr, rng){
+    rng = rng || Math.random;
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(rng()*(i+1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function sortHand(h){
+    h.sort(function(a,b){
+      var d = SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit);
+      return d || (b.rank - a.rank);
+    });
+    return h;
+  }
+  function deal(rng){
+    var d = shuffle(makeDeck(), rng), h = [[],[],[],[]];
+    for(var i=0;i<52;i++) h[i%4].push(d[i]);
+    for(var k=0;k<4;k++) sortHand(h[k]);
+    return h;
+  }
+
+  /* 合法牌集合 */
+  function legalMoves(hand, ctx){
+    ctx = ctx || {};
+    var ts = ctx.trick || [], pool;
+    if(ts.length === 0){
+      if(ctx.mustLeadC2){
+        for(var i=0;i<hand.length;i++) if(hand[i].suit==='C' && hand[i].rank===2) return [hand[i]];
+      }
+      pool = hand.slice();
+      if(!ctx.heartsBroken){
+        var nonH = pool.filter(function(c){ return !isHeart(c); });
+        if(nonH.length) pool = nonH;
+      }
+    }else{
+      var follow = hand.filter(function(c){ return c.suit === ctx.leadSuit; });
+      pool = follow.length ? follow : hand.slice();
+    }
+    if(ctx.firstTrick){
+      var safe = pool.filter(function(c){ return !isHeart(c) && !isQS(c); });
+      if(safe.length) pool = safe;
+    }
+    return pool;
+  }
+
+  function trickWinner(trick){
+    var lead = trick[0].card.suit, best = trick[0];
+    for(var i=1;i<trick.length;i++){
+      var t = trick[i];
+      if(t.card.suit === lead && t.card.rank > best.card.rank) best = t;
+    }
+    return best.seat;
+  }
+  function trickPoints(trick){
+    var s = 0;
+    for(var i=0;i<trick.length;i++) s += pointValue(trick[i].card);
+    return s;
+  }
+  function scoreRound(roundPoints){
+    var d = roundPoints.slice(), shooter = -1;
+    for(var i=0;i<4;i++) if(roundPoints[i] === 26){ shooter = i; break; }
+    if(shooter >= 0) for(var j=0;j<4;j++) d[j] = (j === shooter) ? 0 : 26;
+    return {delta:d, shooter:shooter};
+  }
+
+  function passRisk(c, hand, difficulty){
+    var r = 0, i;
+    var spades = hand.filter(function(x){ return x.suit === 'S'; });
+    if(isQS(c)){
+      r += 120;
+      if(spades.length >= 4) r -= 25;
+      if(hand.some(function(x){ return x.suit==='S' && (x.rank===14 || x.rank===13); })) r -= 20;
+    }else if(isHeart(c)){
+      r += 34 + (c.rank - 2) * 1.4;
+      if(c.rank >= 13) r += 14;
+    }else if(c.suit === 'S' && (c.rank === 14 || c.rank === 13)){
+      r += 26;
+    }else if(c.rank >= 13){
+      r += 12 + (c.rank - 13) * 4;
+    }else if(c.rank >= 11){
+      r += 6;
+    }else{
+      r += c.rank * 0.4;
+    }
+    if(c.suit === 'C' && c.rank === 2) r -= 40;
+    if(difficulty === 'hard'){
+      var cnt = 0;
+      for(i=0;i<hand.length;i++) if(hand[i].suit === c.suit) cnt++;
+      if(cnt <= 2 && c.rank >= 10) r += 22;
+      if(cnt === 1) r += 10;
+    }
+    return r;
+  }
+  function choosePass(hand, difficulty, rng){
+    rng = rng || Math.random;
+    if(difficulty === 'easy') return shuffle(hand.slice(), rng).slice(0,3);
+    var scored = hand.map(function(c){ return {c:c, r:passRisk(c,hand,difficulty) + rng()*8}; });
+    scored.sort(function(a,b){ return b.r - a.r; });
+    return scored.slice(0,3).map(function(x){ return x.c; });
+  }
+
+  function unseenOfSuit(suit, hand, played){
+    var mine = {}, out = [], i, key;
+    for(i=0;i<hand.length;i++) if(hand[i].suit === suit) mine[hand[i].rank] = true;
+    for(i=0;i<RANKS.length;i++){
+      key = suit + '-' + RANKS[i];
+      if(!mine[RANKS[i]] && !played.has(key)) out.push(RANKS[i]);
+    }
+    return out;
+  }
+
+  function choosePlay(hand, ctx, difficulty, rng){
+    rng = rng || Math.random;
+    var legal = legalMoves(hand, ctx);
+    if(legal.length === 1) return legal[0];
+    if(difficulty === 'easy') return legal[Math.floor(rng()*legal.length)];
+
+    var trick = ctx.trick || [];
+    var played = ctx.played || new Set();
+    var pts = trickPoints(trick);
+    var leader = trick.length ? trickWinner(trick) : -1;
+    var isLast = trick.length === 3;
+    var leadSuit = trick.length ? trick[0].card.suit : null;
+    var follower = leadSuit && hand.some(function(c){ return c.suit === leadSuit; });
+    var conservative = (difficulty === 'hard' && ctx.scores && ctx.scores[ctx.seat] >= 70) ? 1.35 : 1;
+    var moonThreat = -1;
+    if(difficulty === 'hard' && ctx.roundPoints){
+      for(var s=0;s<4;s++){
+        if(s !== ctx.seat && ctx.roundPoints[s] >= 14 && ctx.tricksLeft >= 3) moonThreat = s;
+      }
+    }
+    var scored = legal.map(function(c){
+      var v = 0, pv = pointValue(c), i, rem, winProb, take, cnt;
+      if(!trick.length){
+        var others = (difficulty === 'hard') ? unseenOfSuit(c.suit, hand, played) : [];
+        var bigger = others.filter(function(r){ return r > c.rank; }).length;
+        var top = others.length > 0 && bigger === 0;
+        v -= c.rank * 1.7;
+        if(top) v -= 34 * conservative;
+        else if(bigger <= 1) v -= 8;
+        if(isHeart(c)) v -= 16;
+        if(isQS(c)) v -= 45;
+        if(c.suit === 'S' && hand.some(isQS)) v -= 7;
+        if(c.suit === 'D' || c.suit === 'C'){
+          var len = hand.filter(function(x){ return x.suit === c.suit; }).length;
+          v += Math.min(len,7) * 0.8;
+        }
+        if(difficulty === 'hard' && others.length === 0) v -= 26;
+        if(difficulty === 'hard' && ctx.tricksLeft <= 4 && c.rank <= 6) v += 4;
+      }else if(follower){
+        var curMax = 0;
+        for(i=0;i<trick.length;i++) if(trick[i].card.suit === leadSuit && trick[i].card.rank > curMax) curMax = trick[i].card.rank;
+        var willWinByRank = c.rank > curMax;
+        var after = 4 - trick.length - 1;
+        if(!willWinByRank) winProb = 0;
+        else if(isLast) winProb = 1;
+        else if(difficulty === 'hard'){
+          rem = unseenOfSuit(leadSuit, hand, played).filter(function(r){ return r > c.rank; }).length;
+          winProb = Math.pow(Math.max(0.08, 1 - rem/13), Math.max(1, after));
+        }else winProb = 0.55;
+        take = pts + pv;
+        v -= winProb * (34 + take * 7) * conservative;
+        if(!willWinByRank){
+          v += 30 + c.rank * 0.9;
+          v += pv * (leader === moonThreat ? -2.5 : 2.2);
+          if(isHeart(c) && c.rank >= 12) v += 8;
+        }else{
+          v -= c.rank * 0.25;
+        }
+        if(isLast && willWinByRank) v -= 40 + take * 8;
+      }else{
+        v += 18 + c.rank * 1.1;
+        v += pv * 3.2;
+        if(isQS(c)) v += 70;
+        if(isHeart(c)) v += 22 + c.rank * 0.6;
+        if(c.rank >= 13) v += 10;
+        if(leader === moonThreat) v -= pv * 4.5;
+        if(difficulty === 'hard'){
+          cnt = hand.filter(function(x){ return x.suit === c.suit; }).length;
+          if(cnt === 1) v += 9;
+        }
+      }
+      v += (rng() - 0.5) * (difficulty === 'hard' ? 3 : 9);
+      return {c:c, r:v};
+    });
+    scored.sort(function(a,b){ return b.r - a.r; });
+    return scored[0].c;
+  }
+
+  return {
+    SUITS:SUITS, RANKS:RANKS, RANK_LABEL:RANK_LABEL,
+    label:label, isHeart:isHeart, isQS:isQS, pointValue:pointValue,
+    makeDeck:makeDeck, shuffle:shuffle, sortHand:sortHand, deal:deal,
+    legalMoves:legalMoves, trickWinner:trickWinner, trickPoints:trickPoints,
+    scoreRound:scoreRound, choosePass:choosePass, choosePlay:choosePlay
+  };
+})();
+</script>
+
+<!-- ==================== 音效 / 音乐合成 + 界面控制 ==================== -->
+<script>
+(function(){
+'use strict';
+var $ = function(s){ return document.querySelector(s); };
+var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+var SYM = {C:'♣',D:'♦',S:'♠',H:'♥'};
+var SUIT_CN = {C:'梅花',D:'方块',S:'黑桃',H:'红心'};
+var SEAT_NAME = ['你','西家','北家','东家'];
+var SEAT_FULL = ['南家·你','西家','北家','东家'];
+var PASS_TEXT = ['不传牌','向左 · 传给西家','向右 · 传给东家','对家 · 传给北家'];
+var PASS_TO = {1:1, 2:3, 3:2};
+var DIFF_CN = {easy:'简单',medium:'中等',hard:'困难'};
+/* 点阵坐标：两列 18/82、中间列 50；纵向 10~90，行距与横向间距都大于放大后的符号 */
+var PIPS = {
+  2:[[50,10],[50,90]],
+  3:[[50,10],[50,50],[50,90]],
+  4:[[18,10],[82,10],[18,90],[82,90]],
+  5:[[18,10],[82,10],[50,50],[18,90],[82,90]],
+  6:[[18,10],[82,10],[18,50],[82,50],[18,90],[82,90]],
+  7:[[18,10],[82,10],[50,30],[18,50],[82,50],[18,90],[82,90]],
+  8:[[18,10],[82,10],[50,30],[18,50],[82,50],[50,70],[18,90],[82,90]],
+  9:[[18,10],[82,10],[18,36],[82,36],[50,50],[18,64],[82,64],[18,90],[82,90]],
+  10:[[18,10],[82,10],[50,23],[18,36],[82,36],[18,64],[82,64],[50,77],[18,90],[82,90]]
+};
+
+/* ---------------- 配置 ---------------- */
+var cfg = {
+  difficulty:'medium', sound:true, volume:0.7, music:true, musicVolume:0.45,
+  speed:1.8, hints:true, face:'classic', back:'heart', suit:'classic'
+};
+try{ var saved = JSON.parse(localStorage.getItem('hearts_cfg') || '{}'); for(var k in cfg) if(saved[k] !== undefined) cfg[k] = saved[k]; }catch(e){}
+/* 兼容旧版设置：旧牌面/速度值平滑迁移，保证打开即生效 */
+if(cfg.face === 'midnight') cfg.face = 'pearl';
+if(['classic','bright','linen','pearl'].indexOf(cfg.face) < 0) cfg.face = 'classic';
+if(['heart','diamond','spade','club','star'].indexOf(cfg.back) < 0) cfg.back = 'heart';
+cfg.suit = 'classic'; /* 花色固定经典黑红，不再提供其它配色 */
+if(cfg.speed === 0.7) cfg.speed = 1;
+if(cfg.speed === 1.6) cfg.speed = 1.8;
+if([1,1.8,3].indexOf(cfg.speed) < 0) cfg.speed = 1.8;
+function saveCfg(){ try{ localStorage.setItem('hearts_cfg', JSON.stringify(cfg)); }catch(e){} }
+function applyTheme(){
+  document.body.setAttribute('data-face', cfg.face);
+  document.body.setAttribute('data-back', cfg.back);
+  document.body.setAttribute('data-suit', cfg.suit);
+}
+
+/* ---------------- 主题图预览 ---------------- */
+var FACE_NAME = {classic:'象牙白',bright:'纯白',linen:'细纹白',pearl:'冷白瓷面'};
+var BACK_NAME = {
+  heart:'♥ 酒红菱格', diamond:'♦ 海蓝网格', spade:'♠ 石板棋盘',
+  club:'♣ 墨绿圆点', star:'✦ 琥珀星芒'
+};
+var BACK_SWATCH = {
+  heart:'repeating-linear-gradient(45deg,rgba(255,255,255,.20) 0 2px,transparent 2px 5px),#7d1f30',
+  diamond:'repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 1px,transparent 1px 6px),#12566b',
+  spade:'repeating-conic-gradient(from 45deg,rgba(255,255,255,.18) 0% 25%,transparent 0% 50%) 0 0/7px 7px,#25313d',
+  club:'radial-gradient(circle,rgba(255,255,255,.30) 0 1px,transparent 1.5px) 0 0/5px 5px,#205a3c',
+  star:'repeating-linear-gradient(90deg,rgba(255,255,255,.20) 0 2px,transparent 2px 6px),#6b4712'
+};
+var FACE_SWATCH = {
+  classic:'linear-gradient(150deg,#fff,#f4f1e9)', bright:'linear-gradient(150deg,#fff,#f7f7f5)',
+  linen:'linear-gradient(150deg,#fff,#f1efe8)', pearl:'linear-gradient(150deg,#fff,#eef4f8)'
+};
+function decorateThemeButtons(){
+  $$('button[data-theme-back]').forEach(function(b){
+    if(b.dataset.deco) return; b.dataset.deco = '1';
+    b.insertAdjacentHTML('afterbegin','<i class="back-chip" style="background:'+BACK_SWATCH[b.getAttribute('data-theme-back')]+'"></i>');
+  });
+  $$('button[data-theme-face]').forEach(function(b){
+    if(b.dataset.deco) return; b.dataset.deco = '1';
+    b.insertAdjacentHTML('afterbegin','<i class="face-chip" style="background:'+FACE_SWATCH[b.getAttribute('data-theme-face')]+'"></i>');
+  });
+}
+function renderThemePreview(){
+  var demo = [
+    {suit:'C',rank:14,id:'pv-c'},{suit:'D',rank:13,id:'pv-d'},
+    {suit:'S',rank:12,id:'pv-s'},{suit:'H',rank:10,id:'pv-h'}
+  ];
+  var cards = demo.map(function(c){ return cardHTML(c); }).join('') + '<div class="card back"></div>';
+  var suits = '<span class="s-C">♣</span><span class="s-D">♦</span><span class="s-S">♠</span><span class="s-H">♥</span>'+
+    '<em>经典黑红 · '+FACE_NAME[cfg.face]+' · 牌背 '+BACK_NAME[cfg.back]+'</em>';
+  $$('[data-preview]').forEach(function(p){
+    p.querySelector('.tp-cards').innerHTML = cards;
+    p.querySelector('.tp-suits').innerHTML = suits;
+  });
+}
+
+/* ---------------- 音频引擎：音效 + 程序化背景音乐 ---------------- */
+var AudioFX = (function(){
+  var ac = null, master = null, wetIn = null, noiseBuf = null;
+  var enabled = true, vol = 0.7;
+  var musicOn = true, musicVol = 0.45, musicGain = null, musicTimer = null;
+  var nextTime = 0, mStep = 0;
+  var PAN = [0, -0.55, 0, 0.55];
+  var BEAT = 60/84;
+  var CHORDS = [
+    [146.83, 293.66, 349.23, 440.00],
+    [196.00, 293.66, 349.23, 392.00],
+    [130.81, 261.63, 329.63, 392.00],
+    [220.00, 277.18, 329.63, 440.00]
+  ];
+
+  function makeNoise(){
+    var len = Math.floor(ac.sampleRate * 1.2), b = ac.createBuffer(1, len, ac.sampleRate), d = b.getChannelData(0);
+    for(var i=0;i<len;i++) d[i] = Math.random()*2 - 1;
+    return b;
+  }
+  function makeIR(dur, decay){
+    var len = Math.floor(ac.sampleRate * dur), b = ac.createBuffer(2, len, ac.sampleRate);
+    for(var ch=0;ch<2;ch++){
+      var d = b.getChannelData(ch);
+      for(var i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, decay);
+    }
+    return b;
+  }
+  function init(){
+    if(ac) return;
+    var C = window.AudioContext || window.webkitAudioContext;
+    if(!C) return;
+    ac = new C();
+    master = ac.createGain(); master.gain.value = vol; master.connect(ac.destination);
+    musicGain = ac.createGain(); musicGain.gain.value = musicVol; musicGain.connect(master);
+    var conv = ac.createConvolver(); conv.buffer = makeIR(0.42, 2.6);
+    var wetGain = ac.createGain(); wetGain.gain.value = 0.14;
+    conv.connect(wetGain); wetGain.connect(master); wetIn = conv;
+    noiseBuf = makeNoise();
+  }
+  function ensure(){
+    try{ init(); }catch(e){ ac = null; master = null; musicGain = null; return false; }
+    if(!ac) return false;
+    try{ if(ac.state === 'suspended') ac.resume(); }catch(e){}
+    return true;
+  }
+  function route(node, pan, wet){
+    var p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    if(p){ p.pan.value = pan; node.connect(p); p.connect(master); if(wet) p.connect(wetIn); }
+    else { node.connect(master); if(wet) node.connect(wetIn); }
+  }
+  function ready(){ if(!enabled) return false; return ensure(); }
+  function env(g, t, peak, attack, decay){
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  }
+  function tone(freq, type, t, dur, peak, pan, to, wet){
+    var o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if(to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+    env(g, t, peak, 0.006, dur);
+    o.connect(g); route(g, pan, wet !== false); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function noise(t, dur, f0, f1, q, peak, pan, wet){
+    var src = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = noiseBuf; src.loop = true;
+    bp.type = 'bandpass'; bp.Q.value = q;
+    bp.frequency.setValueAtTime(f0, t);
+    bp.frequency.exponentialRampToValueAtTime(Math.max(60, f1), t + dur);
+    env(g, t, peak, 0.004, dur);
+    src.connect(bp); bp.connect(g); route(g, pan, wet !== false);
+    src.start(t); src.stop(t + dur + 0.05);
+  }
+
+  /* --- 背景音乐：八分音符调度器 --- */
+  function mTone(freq, type, t, dur, peak, cutoff){
+    var o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    f.type = 'lowpass'; f.frequency.value = cutoff || 1600;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + 0.09);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(f); f.connect(g); g.connect(musicGain);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function mBrush(t, peak){
+    if(!noiseBuf) return;
+    var src = ac.createBufferSource(), hp = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = noiseBuf; src.loop = true;
+    hp.type = 'highpass'; hp.frequency.value = 5200;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
+    src.connect(hp); hp.connect(g); g.connect(musicGain);
+    src.start(t); src.stop(t + 0.12);
+  }
+  function scheduleMusic(){
+    if(!ac || ac.state !== 'running' || !musicGain) return;
+    try{
+    if(nextTime < ac.currentTime - 0.5) nextTime = ac.currentTime + 0.05;
+    var guardCount = 0;
+    while(nextTime < ac.currentTime + 0.35 && guardCount++ < 16){
+      var bar = Math.floor(mStep / 8) % 4;
+      var pos = mStep % 8;
+      var ch = CHORDS[bar];
+      if(pos === 0){
+        mTone(ch[0]/2, 'sine', nextTime, BEAT*3.6, 0.085, 400);
+        for(var i=1;i<4;i++) mTone(ch[i], 'triangle', nextTime + i*0.018, BEAT*3.2, 0.042, 1250);
+      }
+      if(pos % 2 === 0) mBrush(nextTime, pos === 0 ? 0.020 : 0.012);
+      if(pos === 5) mTone(ch[3]*2, 'sine', nextTime, BEAT*1.1, 0.026, 2600);
+      if(pos === 7 && bar % 2 === 1) mTone(ch[2]*2, 'sine', nextTime, BEAT*0.7, 0.020, 2400);
+      nextTime += BEAT/2;
+      mStep++;
+    }
+    }catch(e){}
+  }
+  function startMusic(){
+    if(!musicOn || musicTimer) return;
+    try{
+      if(!ensure()) return;
+      nextTime = ac.currentTime + 0.08; mStep = 0;
+      musicTimer = setInterval(function(){ try{ scheduleMusic(); }catch(e){} }, 120);
+      scheduleMusic();
+    }catch(e){}
+  }
+  function stopMusic(){ if(musicTimer){ clearInterval(musicTimer); musicTimer = null; } }
+
+  function play(name, seat, force){
+    if(force){ try{ if(!ensure()) return; }catch(e){ return; } }
+    else if(!ready()) return;
+    try{ playImpl(name, seat); }catch(e){}
+  }
+  function playImpl(name, seat){
+    var t = ac.currentTime + 0.02, pan = PAN[seat === undefined ? 0 : seat];
+    switch(name){
+      case 'deal':
+        noise(t, 0.055, 4200, 1300, 1.1, 0.16, pan*0.4, false);
+        tone(230, 'sine', t, 0.045, 0.05, pan, 170, false);
+        break;
+      case 'play':
+        noise(t, 0.10, 3600, 850, 0.85, 0.42, pan);
+        noise(t + 0.012, 0.05, 6200, 3000, 2.0, 0.14, pan, false);
+        tone(145, 'sine', t, 0.085, 0.16, pan, 82);
+        break;
+      case 'click': tone(560, 'triangle', t, 0.055, 0.10, 0, 380, false); break;
+      case 'select': tone(760, 'sine', t, 0.07, 0.09, 0, 1140, false); break;
+      case 'pass':
+        for(var i=0;i<3;i++) noise(t + i*0.085, 0.10, 2600, 700, 0.7, 0.20, -0.3 + i*0.3);
+        break;
+      case 'trick':
+        noise(t, 0.16, 2200, 500, 0.7, 0.34, pan);
+        tone(196, 'sine', t + 0.02, 0.16, 0.12, pan, 150);
+        tone(294, 'sine', t + 0.02, 0.14, 0.07, pan, 220);
+        break;
+      case 'score':
+        [523,440,349].forEach(function(f,i){ tone(f, 'triangle', t + i*0.10, 0.20, 0.10, 0, f*0.98); });
+        break;
+      /* 梅花 2 首攻：清脆双铃 + 短上行 */
+      case 'c2':
+        noise(t, 0.09, 3800, 1100, 0.9, 0.30, pan);
+        tone(1046.5, 'sine', t, 0.30, 0.13, pan, 1046.5);
+        tone(1568, 'sine', t + 0.09, 0.34, 0.10, pan, 1568);
+        tone(523.25, 'triangle', t + 0.02, 0.22, 0.07, pan, 523.25);
+        break;
+      /* 每张红心：轻心跳（与出牌声叠加，不抢戏） */
+      case 'heart':
+        tone(98, 'sine', t, 0.13, 0.095, pan, 66);
+        tone(98, 'sine', t + 0.16, 0.11, 0.070, pan, 62);
+        tone(440, 'sine', t + 0.01, 0.10, 0.030, pan, 392);
+        break;
+      /* 把分牌垫到别人墩上：警示双音 + 低鸣 */
+      case 'penalty':
+        tone(330, 'square', t, 0.11, 0.075, pan, 262, false);
+        tone(330, 'square', t + 0.14, 0.11, 0.065, pan, 247, false);
+        tone(110, 'sine', t + 0.02, 0.38, 0.085, pan, 82);
+        break;
+      /* 收下带分墩：低沉收拢声 */
+      case 'take':
+        noise(t, 0.22, 1500, 260, 0.6, 0.30, pan);
+        tone(164.81, 'sine', t, 0.30, 0.13, pan, 98);
+        tone(246.94, 'triangle', t + 0.05, 0.24, 0.075, pan, 164.81);
+        break;
+      /* 自己赢下无分墩：轻快双击 */
+      case 'wintrick':
+        tone(659, 'sine', t, 0.11, 0.075, pan, 659);
+        tone(880, 'sine', t + 0.09, 0.14, 0.060, pan, 880);
+        break;
+      /* 收到传牌：柔和三音 */
+      case 'receive':
+        [392,523.25,659.25].forEach(function(f,i){ tone(f, 'sine', t + i*0.075, 0.24, 0.075, pan, f); });
+        break;
+      case 'hint':
+        tone(880, 'sine', t, 0.10, 0.085, 0, 1174, false);
+        tone(1174, 'sine', t + 0.08, 0.14, 0.065, 0, 1174, false);
+        break;
+      /* 第一张红心：破心钟声 + 双重心跳 */
+      case 'heartbreak':
+        noise(t, 0.10, 3600, 900, 0.85, 0.34, pan);
+        tone(523.25, 'triangle', t + 0.02, 0.30, 0.16, pan, 392);
+        tone(392, 'sine', t, 0.70, 0.20, pan, 196);
+        tone(196, 'triangle', t, 0.38, 0.12, pan, 120);
+        noise(t, 0.65, 1900, 300, 0.6, 0.14, pan);
+        tone(110, 'sine', t + 0.18, 0.24, 0.17, pan, 78);
+        tone(110, 'sine', t + 0.42, 0.22, 0.13, pan, 78);
+        tone(784, 'sine', t + 0.05, 0.50, 0.065, pan, 588);
+        break;
+      /* 黑桃 Q 现身：不祥铜管 + 下行三音 */
+      case 'queen':
+        noise(t, 0.10, 3600, 900, 0.85, 0.34, pan);
+        tone(146.83, 'sawtooth', t, 0.68, 0.15, pan, 110);
+        tone(220, 'square', t + 0.06, 0.50, 0.075, pan, 165);
+        [440,392,349].forEach(function(f,i){ tone(f, 'triangle', t + 0.14 + i*0.13, 0.34, 0.115, pan, f*0.98); });
+        noise(t, 0.85, 600, 2400, 0.5, 0.085, pan);
+        tone(73.42, 'sine', t + 0.10, 0.90, 0.14, pan, 65);
+        break;
+      /* 射月：凯旋上行 + 长和弦 + 光尘 */
+      case 'moon':
+        [261.63,329.63,392,523.25,659.25,783.99,1046.50].forEach(function(f,i){
+          tone(f, 'triangle', t + i*0.09, 0.58, 0.095, 0, f);
+          tone(f*2, 'sine', t + i*0.09, 0.30, 0.030, 0, f*2);
+        });
+        [523.25,659.25,783.99,1046.50,1318.51].forEach(function(f,i){
+          tone(f, 'sine', t + 0.78 + i*0.10, 0.75, 0.070, 0, f);
+        });
+        tone(130.81, 'sine', t, 1.7, 0.10, 0, 130.81);
+        noise(t, 1.5, 700, 6000, 0.45, 0.085, 0);
+        tone(1760, 'sine', t + 1.35, 0.9, 0.035, 0, 1760);
+        break;
+      case 'win': [523,659,784,1047].forEach(function(f,i){ tone(f, 'triangle', t + i*0.13, 0.38, 0.12, 0, f); }); break;
+      case 'lose': [440,392,330,262].forEach(function(f,i){ tone(f, 'sine', t + i*0.15, 0.34, 0.11, 0, f*0.99); }); break;
+      case 'warn':
+        tone(190, 'square', t, 0.10, 0.07, 0, 150, false);
+        tone(190, 'square', t + 0.13, 0.10, 0.06, 0, 140, false);
+        break;
+    }
+  }
+  return {
+    play: play,
+    unlock: function(){ try{ ensure(); if(musicOn){ stopMusic(); startMusic(); } }catch(e){} },
+    setEnabled: function(v){ enabled = v; if(v){ try{ ensure(); }catch(e){} } },
+    setVolume: function(v){ vol = v; try{ if(master && ac) master.gain.setTargetAtTime(v, ac.currentTime, 0.02); }catch(e){} },
+    setMusicEnabled: function(v){ musicOn = v; if(v){ try{ if(ac && ac.state === 'running') startMusic(); }catch(e){} } else stopMusic(); },
+    setMusicVolume: function(v){ musicVol = v; try{ if(musicGain && ac) musicGain.gain.setTargetAtTime(v, ac.currentTime, 0.05); }catch(e){} },
+    suspendMusic: stopMusic,
+    resumeMusic: function(){ if(musicOn) startMusic(); }
+  };
+})();
+
+/* ---------------- 状态 ---------------- */
+var G = null, token = 0, humanPlayResolve = null, humanPassResolve = null, playLock = false;
+function newState(){
+  return {
+    round:1, passDir:1, scores:[0,0,0,0], history:[],
+    hands:[[],[],[],[]], phase:'menu',
+    trick:[], turn:0, leadSeat:0, trickNo:0, heartsBroken:false,
+    played:new Set(), roundPoints:[0,0,0,0],
+    selected:new Set(), pendingId:null, incoming:[], suggestId:null, lastPlay:null
+  };
+}
+function guard(my){ if(my !== token) throw 'ABORT'; }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, Math.max(0, ms)); }); }
+function abort(){
+  token++;
+  if(humanPlayResolve){ var a = humanPlayResolve; humanPlayResolve = null; a(null); }
+  if(humanPassResolve){ var b = humanPassResolve; humanPassResolve = null; b(null); }
+  playLock = false; document.body.classList.remove('pass-mode');
+}
+function buildCtx(seat){
+  return {
+    seat:seat,
+    trick:G.trick.map(function(x){ return {seat:x.seat, card:x.card}; }),
+    leadSuit:G.trick.length ? G.trick[0].card.suit : null,
+    heartsBroken:G.heartsBroken,
+    firstTrick:G.trickNo === 0,
+    mustLeadC2:G.trickNo === 0 && G.trick.length === 0,
+    played:G.played,
+    roundPoints:G.roundPoints,
+    tricksLeft:13 - G.trickNo,
+    scores:G.scores
+  };
+}
+
+/* ---------------- 渲染 ---------------- */
+function cardHTML(c, cls){
+  var sym = SYM[c.suit], lab = HeartsCore.label(c), mid = '';
+  if(c.rank >= 11 && c.rank <= 13){
+    mid = '<div class="face"><span class="face-letter">'+lab+'</span><span class="face-suit">'+sym+'</span></div>';
+  }else if(c.rank === 14){
+    mid = '<div class="ace">'+sym+'</div>';
+  }else{
+    mid = '<div class="pips">' + PIPS[c.rank].map(function(p){
+      return '<span class="pip '+(p[1] > 55 ? 'bottom' : '')+'" style="left:'+p[0]+'%;top:'+p[1]+'%">'+sym+'</span>';
+    }).join('') + '</div>';
+  }
+  return '<div class="card suit-'+c.suit+' '+(cls||'')+'" data-id="'+c.id+'">'+
+    '<div class="corner tl"><b>'+lab+'</b><span class="s">'+sym+'</span></div>'+mid+
+    '<div class="corner br"><b>'+lab+'</b><span class="s">'+sym+'</span></div></div>';
+}
+function cardLabel(c){ return SUIT_CN[c.suit] + ' ' + HeartsCore.label(c); }
+
+function renderScoreboard(){
+  var html = '';
+  for(var s=0;s<4;s++){
+    var active = (G.phase === 'playing' && G.turn === s);
+    html += '<div class="score-pill '+(s===0?'you ':'')+(active?'active':'')+'">'+
+      '<div class="sp-avatar">'+['南','西','北','东'][s]+'</div>'+
+      '<div><div class="sp-name">'+SEAT_FULL[s]+'</div>'+
+      '<div class="sp-total '+(G.scores[s]>=75?'danger':'')+'">'+G.scores[s]+'</div>'+
+      '<div class="sp-round">本局 +'+G.roundPoints[s]+'</div></div></div>';
+  }
+  $('#scoreboard').innerHTML = html;
+}
+function renderOpp(seat){
+  var n = G.hands[seat].length, el = $('#hand-'+seat), vertical = (seat === 1 || seat === 3), html = '';
+  for(var i=0;i<n;i++){
+    var t = i - (n-1)/2;
+    var style = vertical
+      ? 'left:'+(50 + Math.sin(i*0.8)*4)+'%;top:'+(50 + t*7.0)+'%;transform:translate(-50%,-50%) rotate('+(t*1.5)+'deg)'
+      : 'left:'+(50 + t*6.4)+'%;top:'+(50 + Math.cos(i*0.7)*2)+'%;transform:translate(-50%,-50%) rotate('+(t*1.6)+'deg)';
+    html += '<div class="card back" style="'+style+'"></div>';
+  }
+  el.innerHTML = html;
+}
+function renderHand(){
+  var el = $('#hand-0'), passMode = G.phase === 'passing';
+  var waiting = G.phase === 'playing' && G.turn === 0 && !!humanPlayResolve;
+  var legal = null;
+  if(waiting){
+    legal = {};
+    HeartsCore.legalMoves(G.hands[0], buildCtx(0)).forEach(function(c){ legal[c.id] = true; });
+  }
+  var html = G.hands[0].map(function(c){
+    var cls = '';
+    if(passMode) cls = G.selected.has(c.id) ? 'selected' : 'pickable';
+    else if(legal){
+      if(legal[c.id]) cls = (G.pendingId === c.id ? 'launching' : 'legal');
+      else cls = 'illegal';
+    }
+    if(G.incoming.indexOf(c.id) >= 0 && G.trickNo === 0 && G.phase === 'playing') cls += ' incoming';
+    if(G.suggestId === c.id) cls += ' suggested';
+    return cardHTML(c, cls);
+  }).join('');
+  el.innerHTML = html;
+}
+function renderTrick(){
+  for(var s=0;s<4;s++){
+    var t = null;
+    for(var i=0;i<G.trick.length;i++) if(G.trick[i].seat === s) t = G.trick[i];
+    var slot = $('#slot-'+s);
+    slot.classList.remove('winner-slot');
+    slot.innerHTML = t ? cardHTML(t.card, 'played') : '';
+  }
+  var pts = HeartsCore.trickPoints(G.trick);
+  $('#center-meta').innerHTML = (G.heartsBroken ? '红心已破' : '红心未破') + '<br>' +
+    (G.trick.length ? '本墩 '+pts+' 分' : '等待首攻') + '<br>剩余 '+(13-Math.min(G.trickNo,12))+' 墩';
+  $('#trick-badge').textContent = 'TRICK ' + String(Math.min(G.trickNo+1,13)).padStart(2,'0') + ' / 13';
+}
+function renderSeats(){
+  for(var s=1;s<=3;s++){
+    var el = $('#info-'+s), on = (G.phase === 'playing' && G.turn === s);
+    el.classList.toggle('on', on);
+    el.querySelector('span').textContent = SEAT_NAME[s] + (on ? ' · 出牌中' : ' · '+G.hands[s].length+' 张');
+  }
+  var playedCard = null;
+  for(var i=0;i<G.trick.length;i++) if(G.trick[i].seat === 0) playedCard = G.trick[i].card;
+  $('#player-sub').textContent = G.phase === 'playing'
+    ? (humanPlayResolve ? '轮到你 · 点击手牌打出' : (playedCard ? '已出 '+cardLabel(playedCard) : '等待其他玩家'))
+    : (G.phase === 'passing' ? '选择 3 张牌传给别家' : '准备中');
+}
+function renderBanner(){
+  var p = G.passDir !== undefined ? PASS_TEXT[G.passDir] : '';
+  var t = '第 '+G.round+' 局 · '+p;
+  if(G.phase === 'passing') t += ' · 请选择 3 张牌';
+  else if(G.phase === 'playing') t += ' · 第 '+Math.min(G.trickNo+1,13)+' 墩';
+  else if(G.phase === 'dealing') t += ' · 发牌中';
+  $('#phase-banner').textContent = t;
+}
+function renderControls(){
+  var pass = $('#btn-pass'), tip = $('#action-tip');
+  var isPass = G.phase === 'passing';
+  var waiting = G.phase === 'playing' && G.turn === 0 && !!humanPlayResolve;
+  document.body.classList.toggle('pass-mode', isPass);
+  pass.classList.toggle('hidden', !isPass);
+  $('#btn-hint').disabled = !waiting;
+  $('#pass-count').textContent = G.selected.size + '/3';
+  if(isPass){
+    tip.textContent = G.selected.size === 3
+      ? '已选满 3 张 · 点击中央按钮传给 '+SEAT_NAME[PASS_TO[G.passDir]]
+      : '点击手牌选 3 张（红心 / 黑桃 Q / 大牌）· 已选 '+G.selected.size+'/3';
+  }else if(waiting){
+    var n = HeartsCore.legalMoves(G.hands[0], buildCtx(0)).length;
+    tip.textContent = G.pendingId ? '出牌中…'
+      : (cfg.hints ? '点击亮色手牌直接打出 · 共 '+n+' 张可出 · 灰牌不可出' : '点击手牌直接打出 · 共 '+n+' 张可出');
+  }else{
+    tip.textContent = (G.phase === 'playing' && G.turn > 0) ? '等待 '+SEAT_NAME[G.turn]+' 出牌…' : '牌局进行中…';
+  }
+}
+function renderAll(){
+  renderScoreboard(); renderHand(); renderOpp(1); renderOpp(2); renderOpp(3);
+  renderTrick(); renderSeats(); renderBanner(); renderControls(); renderScoreOverlay();
+}
+function renderScoreOverlay(){
+  var el = $('#score-body');
+  if(!G || !G.history.length){ el.innerHTML = '<div class="sub" style="text-align:center;padding:20px">还没有完成的牌局</div>'; return; }
+  var h = '<table class="score-table"><thead><tr><th>局</th><th>你</th><th>西</th><th>北</th><th>东</th><th>累计（你/西/北/东）</th></tr></thead><tbody>';
+  G.history.forEach(function(x){
+    h += '<tr class="'+(x.shooter>=0?'shoot':'')+'"><td>'+x.round+(x.shooter>=0?' ✦':'')+'</td>'+
+      x.delta.map(function(d){ return '<td class="'+(d>=13?'hi':'')+'">+'+d+'</td>'; }).join('')+
+      '<td>'+x.total.join(' / ')+'</td></tr>';
+  });
+  h += '</tbody></table>';
+  if(G.history.some(function(x){return x.shooter>=0;})) h += '<div class="sub" style="margin-top:10px">✦ 表示该局有人射月成功，其余三家各 +26 分。</div>';
+  el.innerHTML = h;
+}
+
+/* ---------------- 动画与特效 ---------------- */
+function animateDeal(){
+  $$('#hand-0 .card').forEach(function(el,i){
+    el.animate([{transform:'translateY(-160px) rotate(-14deg) scale(.8)',opacity:0},{transform:'none',opacity:1}],
+      {duration:260/cfg.speed, delay:i*26/cfg.speed, easing:'cubic-bezier(.2,.85,.3,1)', fill:'backwards'});
+  });
+  [1,2,3].forEach(function(s){
+    $$('#hand-'+s+' .card').forEach(function(el,i){
+      el.animate([{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'none'}],
+        {duration:180/cfg.speed, delay:(s*40+i*18)/cfg.speed, easing:'ease-out', fill:'backwards'});
+    });
+  });
+  for(var i=0;i<6;i++) AudioFX.play('deal', i%4);
+}
+function animatePlayIn(seat, src){
+  var el = document.querySelector('#slot-'+seat+' .card');
+  if(!el || !src || !el.animate) return Promise.resolve();
+  var r = el.getBoundingClientRect();
+  var dx = src.left + src.width/2 - (r.left + r.width/2);
+  var dy = src.top + src.height/2 - (r.top + r.height/2);
+  var dur = 250/cfg.speed;
+  var frames = seat === 0
+    ? [{transform:'translate('+dx+'px,'+dy+'px) rotate(-6deg) scale(.94)',opacity:.55},{transform:'none',opacity:1}]
+    : [{transform:'translate('+dx+'px,'+dy+'px) rotateY(85deg) scale(.8)',opacity:.25},
+       {transform:'translate('+(dx*.35)+'px,'+(dy*.35)+'px) rotateY(20deg) scale(.95)',opacity:.85,offset:.6},
+       {transform:'none',opacity:1}];
+  var a = el.animate(frames, {duration:dur, easing:'cubic-bezier(.2,.85,.3,1)'});
+  return new Promise(function(res){ a.onfinish = res; setTimeout(res, dur + 80); });
+}
+function animatePassOut(cards){
+  var to = PASS_TO[G.passDir];
+  var dest = $('#hand-'+to).getBoundingClientRect();
+  cards.forEach(function(c,i){
+    var el = document.querySelector('#hand-0 .card[data-id="'+c.id+'"]');
+    if(!el || !el.animate) return;
+    var r = el.getBoundingClientRect();
+    var dx = dest.left + dest.width/2 - (r.left + r.width/2);
+    var dy = dest.top + dest.height/2 - (r.top + r.height/2);
+    el.animate([{transform:'none',opacity:1},
+      {transform:'translate('+(dx*.7)+'px,'+(dy*.7)+'px) rotate('+(i-1)*12+'deg) scale(.75)',opacity:0}],
+      {duration:300/cfg.speed, delay:i*48/cfg.speed, easing:'ease-in', fill:'forwards'});
+  });
+  return sleep(340/cfg.speed);
+}
+function collectTrick(winner, pts){
+  var slot = $('#slot-'+winner);
+  slot.classList.add('winner-slot');
+  var dest = $('#hand-'+winner).getBoundingClientRect();
+  $$('.slot .card').forEach(function(el,i){
+    if(!el.animate) return;
+    var r = el.getBoundingClientRect();
+    var dx = dest.left + dest.width/2 - (r.left + r.width/2);
+    var dy = dest.top + dest.height/2 - (r.top + r.height/2);
+    el.animate([{transform:'none',opacity:1},
+      {transform:'translate('+(dx*.55)+'px,'+(dy*.55)+'px) rotate('+((i-1.5)*12)+'deg) scale(.5)',opacity:0}],
+      {duration:300/cfg.speed, delay:i*22/cfg.speed, easing:'ease-in', fill:'forwards'});
+  });
+  if(pts) AudioFX.play('take', winner);
+  else AudioFX.play(winner === 0 ? 'wintrick' : 'trick', winner);
+  toast(SEAT_NAME[winner]+' 收下本墩'+(pts ? ' · +'+pts+' 分' : ' · 无分'), pts ? 'warn' : 'info', 1500);
+  return sleep(400/cfg.speed);
+}
+function flashTable(kind){
+  var el = document.createElement('div');
+  el.className = 'fx-flash ' + kind;
+  $('#fx-layer').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 950);
+}
+function bigBanner(t, s){
+  var el = document.createElement('div');
+  el.className = 'big-banner';
+  el.innerHTML = '<div class="t">'+t+'</div><div class="s">'+s+'</div>';
+  $('#table').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2200);
+}
+function celebrateMoon(seat){
+  var layer = $('#screen-fx');
+  var wrap = document.createElement('div');
+  wrap.className = 'moon-fx';
+  wrap.innerHTML = '<div class="moon-glow"></div>';
+  var chars = ['♥','♦','♣','♠','✦'], colors = ['#ffe6a3','#ff8fa3','#a8e6cf','#ffd166'];
+  for(var i=0;i<48;i++){
+    var s = document.createElement('span');
+    s.className = 'moon-confetti';
+    s.textContent = chars[i%5];
+    s.style.left = (Math.random()*100) + '%';
+    s.style.fontSize = (16 + Math.random()*26) + 'px';
+    s.style.color = colors[i%4];
+    s.style.animationDelay = (Math.random()*1.3) + 's';
+    s.style.animationDuration = (2.2 + Math.random()*1.8) + 's';
+    wrap.appendChild(s);
+  }
+  var b = document.createElement('div');
+  b.className = 'moon-banner';
+  b.innerHTML = '<div class="mt">✦ SHOOT THE MOON ✦</div>'+
+    '<div class="ms">'+SEAT_FULL[seat]+' 独收全部 26 分 · 其余三家各 +26</div>';
+  wrap.appendChild(b);
+  layer.appendChild(wrap);
+  AudioFX.play('moon');
+  toast('✦ '+SEAT_NAME[seat]+' 射月成功！其余三家各 +26 分', 'moon', 4200);
+  setTimeout(function(){ wrap.remove(); }, 4200);
+}
+function toast(msg, type, ms){
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type || 'info');
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(function(){
+    el.style.transition = 'opacity .3s,transform .3s'; el.style.opacity = '0'; el.style.transform = 'translateX(16px)';
+    setTimeout(function(){ el.remove(); }, 320);
+  }, ms || 2600);
+}
+
+/* ---------------- 流程 ---------------- */
+function waitPlay(){
+  return new Promise(function(res){
+    playLock = false;
+    humanPlayResolve = res;
+    renderHand(); renderControls(); renderSeats();
+  });
+}
+function waitPass(){ return new Promise(function(res){ humanPassResolve = res; }); }
+
+async function startRound(){
+  var my = ++token;
+  try{
+    G.phase = 'dealing';
+    G.hands = HeartsCore.deal();
+    G.trick = []; G.played = new Set(); G.roundPoints = [0,0,0,0];
+    G.heartsBroken = false; G.trickNo = 0; G.selected = new Set();
+    G.incoming = []; G.suggestId = null; G.pendingId = null; G.lastPlay = null;
+    G.passDir = [1,2,3,0][(G.round-1) % 4];
+    renderAll(); animateDeal();
+    await sleep(480/cfg.speed); guard(my);
+    if(G.passDir) await passingPhase(my); else await beginPlay(my);
+  }catch(e){ if(e !== 'ABORT') console.error(e); }
+}
+async function passingPhase(my){
+  G.phase = 'passing'; G.selected = new Set(); renderAll();
+  toast('第 '+G.round+' 局 · '+PASS_TEXT[G.passDir]+'，请选择 3 张牌', 'info', 3600);
+  var chosen = await waitPass();
+  guard(my); if(!chosen) return;
+  var picks = G.hands.map(function(h,s){ return s === 0 ? chosen : HeartsCore.choosePass(h, cfg.difficulty); });
+  var to = PASS_TO[G.passDir];
+  AudioFX.play('pass', 0);
+  await animatePassOut(chosen); guard(my);
+  var next = G.hands.map(function(h,s){ return h.filter(function(c){ return !picks[s].some(function(p){ return p.id === c.id; }); }); });
+  picks.forEach(function(p,s){ p.forEach(function(c){ next[(s+to)%4].push(c); }); });
+  G.hands = next.map(function(h){ return HeartsCore.sortHand(h); });
+  G.incoming = picks[(4-to)%4].map(function(c){ return c.id; });
+  G.selected = new Set(); G.phase = 'playing'; renderAll();
+  AudioFX.play('receive', 0);
+  toast('收到 '+G.incoming.length+' 张牌，'+PASS_TEXT[G.passDir]+'完成', 'success');
+  await sleep(420/cfg.speed); guard(my);
+  await beginPlay(my);
+}
+async function beginPlay(my){
+  var c2 = -1;
+  for(var s=0;s<4;s++) if(G.hands[s].some(function(c){ return c.suit==='C' && c.rank===2; })){ c2 = s; break; }
+  G.leadSeat = c2 < 0 ? 0 : c2;
+  G.phase = 'playing'; renderAll();
+  toast('首攻：'+SEAT_NAME[G.leadSeat]+' 持梅花 2', 'info', 2200);
+  await sleep(480/cfg.speed); guard(my);
+  await runTricks(my);
+}
+async function runTricks(my){
+  for(var t=0;t<13;t++){
+    G.trickNo = t; G.trick = []; G.turn = G.leadSeat;
+    renderAll();
+    for(var i=0;i<4;i++){
+      var seat = (G.leadSeat + i) % 4;
+      guard(my);
+      G.turn = seat; renderScoreboard(); renderSeats(); renderControls(); renderHand();
+      var card;
+      if(seat === 0){
+        card = await waitPlay(); guard(my); if(!card) return;
+      }else{
+        await sleep((210 + Math.random()*260)/cfg.speed); guard(my);
+        card = HeartsCore.choosePlay(G.hands[seat], buildCtx(seat), cfg.difficulty);
+      }
+      await submitPlay(seat, card, my);
+    }
+    var w = HeartsCore.trickWinner(G.trick);
+    var pts = HeartsCore.trickPoints(G.trick);
+    G.roundPoints[w] += pts;
+    renderScoreboard();
+    await collectTrick(w, pts); guard(my);
+    G.leadSeat = w; G.trick = []; renderAll();
+  }
+  await endRound(my);
+}
+async function submitPlay(seat, card, my){
+  var ctx = buildCtx(seat);
+  var legal = HeartsCore.legalMoves(G.hands[seat], ctx);
+  if(!legal.some(function(c){ return c.id === card.id; })){
+    if(seat === 0) toast('这张牌现在不能出', 'warn');
+    return;
+  }
+  var brokeHeart = (card.suit === 'H' && !G.heartsBroken);
+  var queen = HeartsCore.isQS(card);
+  var c2 = (card.suit === 'C' && card.rank === 2 && G.trickNo === 0 && G.trick.length === 0);
+  var offSuitPenalty = (G.trick.length > 0 && card.suit !== G.trick[0].card.suit && HeartsCore.pointValue(card) > 0);
+  var srcEl = seat === 0 ? document.querySelector('#hand-0 .card[data-id="'+card.id+'"]') : $('#hand-'+seat);
+  var src = srcEl ? srcEl.getBoundingClientRect() : null;
+  G.hands[seat] = G.hands[seat].filter(function(c){ return c.id !== card.id; });
+  G.trick.push({seat:seat, card:card});
+  G.played.add(card.id);
+  if(card.suit === 'H') G.heartsBroken = true;
+  G.selected = new Set(); G.pendingId = null; G.suggestId = null; G.lastPlay = {seat:seat, card:card};
+  renderAll();
+  if(c2){
+    AudioFX.play('c2', seat);
+    toast('♣ 2 首攻 · 牌局正式开始', 'info', 1800);
+  }else if(queen){
+    AudioFX.play('queen', seat); flashTable('queen');
+    toast('♠ Q 现身 · 价值 13 分，小心收墩！', 'warn', 3200);
+  }else if(brokeHeart){
+    AudioFX.play('heartbreak', seat); flashTable('heart');
+    toast('♥ 红心已破 · 此后可主动首攻红心', 'warn', 3000);
+  }else{
+    AudioFX.play('play', seat);
+  }
+  if(card.suit === 'H' && !brokeHeart) AudioFX.play('heart', seat);
+  if(offSuitPenalty && !queen && !brokeHeart) AudioFX.play('penalty', seat);
+  await animatePlayIn(seat, src);
+  guard(my);
+  await sleep(100/cfg.speed);
+}
+async function endRound(my){
+  var res = HeartsCore.scoreRound(G.roundPoints);
+  G.scores = G.scores.map(function(s,i){ return s + res.delta[i]; });
+  G.history.push({round:G.round, delta:res.delta.slice(), total:G.scores.slice(), shooter:res.shooter});
+  renderAll();
+  if(res.shooter >= 0){
+    celebrateMoon(res.shooter);
+    await sleep(2200/cfg.speed); guard(my);
+  }else{
+    AudioFX.play('score');
+    await sleep(700/cfg.speed); guard(my);
+  }
+  if(Math.max.apply(null, G.scores) >= 100){ showEnd(); return; }
+  G.round++;
+  toast('第 '+(G.round-1)+' 局结束 · 即将开始第 '+G.round+' 局', 'info', 2600);
+  await sleep(900/cfg.speed); guard(my);
+  startRound();
+}
+function showEnd(){
+  var order = [0,1,2,3].sort(function(a,b){ return G.scores[a] - G.scores[b]; });
+  var champ = order[0];
+  $('#end-title').textContent = champ === 0 ? '恭喜夺冠！' : '牌局结束';
+  $('#end-sub').textContent = '共 '+G.round+' 局 · 冠军：'+SEAT_FULL[champ]+'（'+G.scores[champ]+' 分）';
+  $('#end-body').innerHTML = order.map(function(s,i){
+    return '<div class="end-rank '+(i===0?'champ':'')+'"><div class="medal">'+(i===0?'♛':(i+1))+'</div>'+
+      '<div class="nm">'+SEAT_FULL[s]+'</div><div class="sc">'+G.scores[s]+'</div></div>';
+  }).join('');
+  openOverlay('overlay-end');
+  AudioFX.play(champ === 0 ? 'win' : 'lose');
+}
+
+/* ---------------- 交互：点击手牌直接出牌 ---------------- */
+function handleCardClick(id){
+  if(!G) return;
+  if(G.phase === 'passing'){
+    if(G.selected.has(id)) G.selected.delete(id);
+    else{
+      if(G.selected.size >= 3){ toast('最多选择 3 张牌', 'warn', 1600); return; }
+      G.selected.add(id);
+    }
+    AudioFX.play('select');
+    renderHand(); renderControls();
+    return;
+  }
+  if(G.phase !== 'playing' || G.turn !== 0 || !humanPlayResolve) return;
+  var legal = HeartsCore.legalMoves(G.hands[0], buildCtx(0));
+  if(!legal.some(function(c){ return c.id === id; })){
+    AudioFX.play('warn');
+    var lead = G.trick.length ? G.trick[0].card.suit : null;
+    toast(lead && G.hands[0].some(function(c){return c.suit===lead;})
+      ? '必须跟 '+SUIT_CN[lead] : '这张牌当前不合法（首墩限制 / 红心未破）', 'warn', 2000);
+    return;
+  }
+  var card = G.hands[0].find(function(c){ return c.id === id; });
+  if(card) launchCard(card);
+}
+async function launchCard(card){
+  if(playLock || !humanPlayResolve) return;
+  playLock = true;
+  G.pendingId = card.id; G.suggestId = null;
+  renderHand(); renderControls();
+  AudioFX.play('select');
+  await sleep(110/cfg.speed);
+  var r = humanPlayResolve;
+  if(r && G.pendingId === card.id){
+    G.pendingId = null; humanPlayResolve = null; r(card);
+  }else{
+    G.pendingId = null;
+  }
+}
+function doPass(){
+  if(G.phase !== 'passing') return;
+  if(G.selected.size !== 3){ toast('还需再选 '+(3-G.selected.size)+' 张牌', 'warn', 1700); AudioFX.play('warn'); return; }
+  var cards = Array.from(G.selected).map(function(id){ return G.hands[0].find(function(c){ return c.id === id; }); });
+  AudioFX.play('click');
+  var r = humanPassResolve; humanPassResolve = null; if(r) r(cards);
+}
+
+$('#hand-0').addEventListener('click', function(e){
+  var el = e.target.closest('.card'); if(!el || !G) return;
+  handleCardClick(el.dataset.id);
+});
+$('#btn-pass').addEventListener('click', doPass);
+$('#btn-hint').addEventListener('click', function(){
+  if(!G || G.phase !== 'playing' || G.turn !== 0 || !humanPlayResolve) return;
+  var c = HeartsCore.choosePlay(G.hands[0], buildCtx(0), 'hard');
+  G.suggestId = c.id; renderHand();
+  AudioFX.play('hint');
+  toast('建议出：'+cardLabel(c)+' · 点击它即可打出', 'info', 2600);
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeAllOverlays();
+  if(e.key === 'Enter'){
+    if(!$('#overlay-end').classList.contains('hidden')){ newGame(); return; }
+    if(G && G.phase === 'passing') doPass();
+  }
+});
+
+/* ---------------- 浮层与设置 ---------------- */
+function openOverlay(id){ $('#'+id).classList.remove('hidden'); }
+function closeAllOverlays(){ $$('.overlay').forEach(function(o){ o.classList.add('hidden'); }); }
+$$('[data-close]').forEach(function(b){ b.addEventListener('click', function(){ $('#'+b.dataset.close).classList.add('hidden'); }); });
+$$('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target === o && o.id !== 'overlay-menu' && o.id !== 'overlay-end') o.classList.add('hidden'); });
+});
+$('#btn-rules').addEventListener('click', function(){ openOverlay('overlay-rules'); AudioFX.play('click'); });
+$('#menu-rules').addEventListener('click', function(){ openOverlay('overlay-rules'); });
+$('#btn-score').addEventListener('click', function(){ renderScoreOverlay(); openOverlay('overlay-score'); AudioFX.play('click'); });
+$('#btn-settings').addEventListener('click', function(){ syncSettingsUI(); openOverlay('overlay-settings'); AudioFX.play('click'); });
+
+function bindDiffCards(container){
+  $$('#'+container+' .diff-card').forEach(function(b){
+    b.addEventListener('click', function(){
+      cfg.difficulty = b.dataset.diff; saveCfg(); syncSettingsUI(); AudioFX.play('click');
+      if(G && G.phase !== 'menu') toast('对手难度：'+DIFF_CN[cfg.difficulty]+' · 即时生效，当前局继续', 'info', 1800);
+    });
+  });
+}
+bindDiffCards('menu-diff'); bindDiffCards('settings-diff');
+var SWITCH_NAME = {sound:'音效',music:'背景音乐',hints:'可出牌高亮'};
+function bindSwitch(id, key, after){
+  $('#'+id).addEventListener('click', function(){
+    cfg[key] = !cfg[key]; saveCfg(); syncSettingsUI(); AudioFX.unlock(); AudioFX.play('click');
+    if(after) after();
+    toast(SWITCH_NAME[key]+'已'+(cfg[key]?'开启':'关闭')+' · 即时生效', 'info', 1500);
+  });
+}
+bindSwitch('menu-sound', 'sound', function(){ AudioFX.setEnabled(cfg.sound); });
+bindSwitch('set-sound', 'sound', function(){ AudioFX.setEnabled(cfg.sound); });
+bindSwitch('menu-music', 'music', function(){ AudioFX.setMusicEnabled(cfg.music); });
+bindSwitch('set-music', 'music', function(){ AudioFX.setMusicEnabled(cfg.music); });
+bindSwitch('set-hints', 'hints', function(){ if(G) renderAll(); });
+$('#set-volume').addEventListener('input', function(e){
+  cfg.volume = Number(e.target.value)/100; saveCfg(); AudioFX.setVolume(cfg.volume); syncSettingsUI();
+});
+$('#set-music-volume').addEventListener('input', function(e){
+  cfg.musicVolume = Number(e.target.value)/100; saveCfg(); AudioFX.setMusicVolume(cfg.musicVolume); syncSettingsUI();
+});
+var SPEED_NAME = {1:'标准',1.8:'快速',3:'极速'};
+function bindSpeed(id){
+  $$('#'+id+' button').forEach(function(b){
+    b.addEventListener('click', function(){
+      cfg.speed = Number(b.dataset.speed); saveCfg(); syncSettingsUI(); AudioFX.play('click');
+      toast('动画速度：'+SPEED_NAME[cfg.speed]+' · 即时生效', 'info', 1500);
+    });
+  });
+}
+bindSpeed('menu-speed'); bindSpeed('set-speed');
+function themeLabel(key, v){
+  return key === 'face' ? FACE_NAME[v] : BACK_NAME[v];
+}
+function bindTheme(attr, key){
+  $$('button['+attr+']').forEach(function(b){
+    b.addEventListener('click', function(){
+      cfg[key] = b.getAttribute(attr);
+      saveCfg(); applyTheme(); syncSettingsUI(); renderThemePreview(); AudioFX.play('click');
+      toast('已切换为「'+themeLabel(key, cfg[key])+'」· 即时生效，无需重开', 'success', 1700);
+    });
+  });
+}
+bindTheme('data-theme-face', 'face');
+bindTheme('data-theme-back', 'back');
+function syncSettingsUI(){
+  $$('.diff-card').forEach(function(b){ b.classList.toggle('active', b.dataset.diff === cfg.difficulty); });
+  ['menu-sound','set-sound'].forEach(function(id){ $('#'+id).classList.toggle('on', cfg.sound); });
+  ['menu-music','set-music'].forEach(function(id){ $('#'+id).classList.toggle('on', cfg.music); });
+  $('#set-hints').classList.toggle('on', cfg.hints);
+  $('#set-volume').value = Math.round(cfg.volume*100);
+  $('#set-music-volume').value = Math.round(cfg.musicVolume*100);
+  $$('#menu-speed button, #set-speed button').forEach(function(b){ b.classList.toggle('on', Number(b.dataset.speed) === cfg.speed); });
+  $$('button[data-theme-face]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-theme-face') === cfg.face); });
+  $$('button[data-theme-back]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-theme-back') === cfg.back); });
+  $('#volume-label').textContent = '音效音量 · '+Math.round(cfg.volume*100)+'%';
+  $('#music-volume-label').textContent = '音乐音量 · '+Math.round(cfg.musicVolume*100)+'%';
+  decorateThemeButtons();
+  renderThemePreview();
+}
+/* 特殊牌音效试听：依次播放 7 段，强制发声以便确认 */
+var SFX_DEMO = [
+  ['c2','♣ 2 首攻 · 清脆双铃'],
+  ['heart','♥ 每张红心 · 轻心跳'],
+  ['heartbreak','♥ 第一张红心 · 破心钟声'],
+  ['queen','♠ Q 现身 · 不祥铜管'],
+  ['penalty','⚠ 垫出分牌 · 警示低鸣'],
+  ['take','收下带分墩 · 低沉收拢'],
+  ['moon','射月 · 凯旋庆祝']
+];
+var sfxTimers = [];
+$('#btn-sfx-test').addEventListener('click', function(){
+  sfxTimers.forEach(clearTimeout); sfxTimers = [];
+  AudioFX.unlock();
+  if(!cfg.sound){
+    cfg.sound = true; saveCfg(); AudioFX.setEnabled(true); syncSettingsUI();
+    toast('已自动打开音效开关以便试听', 'info', 1800);
+  }
+  SFX_DEMO.forEach(function(item, i){
+    sfxTimers.push(setTimeout(function(){
+      AudioFX.play(item[0], 0, true);
+      toast('▶ '+item[1], 'info', 1200);
+    }, i*950));
+  });
+});
+$('#btn-settings-done').addEventListener('click', function(){
+  $('#overlay-settings').classList.add('hidden');
+  AudioFX.play('click');
+  toast('设置已即时生效 · 当前牌局继续', 'success', 1800);
+});
+$('#btn-start').addEventListener('click', function(){ AudioFX.unlock(); newGame(); });
+$('#btn-restart').addEventListener('click', function(){
+  if(!window.confirm('确定放弃当前进度、重新开始整场吗？设置会保留。')) return;
+  newGame();
+});
+$('#btn-menu').addEventListener('click', function(){
+  if(!window.confirm('确定结束当前牌局、返回主菜单吗？')) return;
+  abort(); closeAllOverlays(); openOverlay('overlay-menu');
+});
+$('#end-restart').addEventListener('click', function(){ newGame(); });
+$('#end-menu').addEventListener('click', function(){ abort(); closeAllOverlays(); openOverlay('overlay-menu'); });
+function newGame(){
+  abort();
+  closeAllOverlays();
+  G = newState();
+  AudioFX.unlock();
+  renderAll();
+  startRound();
+}
+
+/* 背景漂浮花色 */
+(function(){
+  var wrap = document.getElementById('hearts-bg');
+  var chars = ['♥','♦','♣','♠'];
+  for(var i=0;i<12;i++){
+    var s = document.createElement('span');
+    s.className = 'bg-heart';
+    s.textContent = chars[i%4];
+    s.style.left = (4 + Math.random()*92) + '%';
+    s.style.top = (60 + Math.random()*50) + '%';
+    s.style.fontSize = (14 + Math.random()*20) + 'px';
+    s.style.animationDelay = (-Math.random()*18) + 's';
+    s.style.animationDuration = (14 + Math.random()*12) + 's';
+    wrap.appendChild(s);
+  }
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden';
+})();
+
+/* 初始化 */
+applyTheme();
+AudioFX.setEnabled(cfg.sound);
+AudioFX.setVolume(cfg.volume);
+AudioFX.setMusicEnabled(cfg.music);
+AudioFX.setMusicVolume(cfg.musicVolume);
+G = newState();
+renderAll();
+syncSettingsUI();
+document.addEventListener('pointerdown', function once(){ AudioFX.unlock(); document.removeEventListener('pointerdown', once); });
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden) AudioFX.suspendMusic(); else AudioFX.resumeMusic();
+});
+})();
+</script>
+</body>
+</html>
