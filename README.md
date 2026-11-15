@@ -41,7 +41,7 @@ HTML5-Demo/
 <!-- DEMOS:START -->
 > 本区块由 `scripts/gen-readme.mjs` 依据 `files.json` 自动生成，请勿手动编辑。
 
-共 **9** 个作品 · 数据源 [`files.json`](files.json) · 导航首页 [`index.html`](index.html) 同源
+共 **10** 个作品 · 数据源 [`files.json`](files.json) · 导航首页 [`index.html`](index.html) 同源
 
 | # | 作品 | 描述 | 标签 | 直接打开 |
 |---|------|------|------|----------|
@@ -54,6 +54,7 @@ HTML5-Demo/
 | 7 | 💥 [SHOTGUN APOCALYPSE — 末日霰弹枪 v2](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) | 升级版 FPS 生存游戏，新增电影级后处理、更丰富的敌人类型与武器升级系统 | `FPS` · `射击` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) |
 | 8 | 🧟 [SHOTGUN APOCALYPSE — 霰弹枪末日 v3](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) | 最终版末日射击游戏，完整 UI 系统、设置面板、波次生存模式与成就系统 | `FPS` · `生存` · `WebGL` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) |
 | 9 | 🕶️ [HACK TERMINAL — 系统入侵](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) | 黑客终端模拟器，Matrix 代码雨背景，逐行打印入侵日志与进度条动画 | `终端` · `动画` · `Matrix` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) |
+| 10 | 🃏 [红心大战 · 离线珍藏版](https://alen2022-sun.github.io/HTML5-Demo/source/hearts.html) | 单文件离线四人红心大战：三档 AI、牌面牌背与花色配色可换、点击手牌即出牌，内置合成音效、背景音乐与射月全屏庆祝。 | `红心大战` · `纸牌游戏` · `单文件离线` · `AI对战` | [↗ 打开](https://alen2022-sun.github.io/HTML5-Demo/source/hearts.html) |
 
 <details>
 <summary>📋 展开全部直链（便于复制）</summary>
@@ -67,6 +68,7 @@ HTML5-Demo/
 - [SHOTGUN APOCALYPSE — 末日霰弹枪 v2](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-2.html) — `source/shot-gun-2.html`
 - [SHOTGUN APOCALYPSE — 霰弹枪末日 v3](https://alen2022-sun.github.io/HTML5-Demo/source/shot-gun-3.html) — `source/shot-gun-3.html`
 - [HACK TERMINAL — 系统入侵](https://alen2022-sun.github.io/HTML5-Demo/source/The-Matrix.html) — `source/The-Matrix.html`
+- [红心大战 · 离线珍藏版](https://alen2022-sun.github.io/HTML5-Demo/source/hearts.html) — `source/hearts.html`
 
 </details>
 <!-- DEMOS:END -->
